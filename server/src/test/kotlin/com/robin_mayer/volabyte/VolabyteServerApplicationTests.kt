@@ -9,5 +9,4 @@ class VolabyteServerApplicationTests {
 	@Test
 	fun contextLoads() {
 	}
-
 }
