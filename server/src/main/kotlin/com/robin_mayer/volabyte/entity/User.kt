@@ -27,7 +27,7 @@ class User (
     var id: Long? = null
     val userId = UUID.randomUUID().toString()
     val createdAt = Date()
-    val lastLoginAt = Date()
+    var lastLoginAt = Date()
 
     fun toDTO(): UserDTO {
         return UserDTO(
