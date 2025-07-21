@@ -44,13 +44,13 @@ class UserService (
         password: String,
         role: UserRole,
     ): User {
-        if (userRepository.existsByUserName(userName)) {
+        if (doesUserNameExist(userName)) {
             throw ApiException("Username already exists", HttpStatus.BAD_REQUEST)
         }
 
         val hashedPassword = passwordEncoder.encode(password + passwordHashSalt)
         val user = User(
-            userName = userName,
+            userName = userName.lowercase(),
             displayName = displayName,
             password = hashedPassword,
             role = role
