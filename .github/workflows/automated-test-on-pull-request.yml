@@ -21,3 +21,19 @@ jobs:
       - name: Run maven clean verify
         working-directory: server
         run: mvn clean verify
+  test-web-app:
+    name: Test the web application
+    runs-on: ubuntu-latest
+    steps:
+        - name: Check out the repository
+          uses: actions/checkout@v4
+        - name: Set up Node
+          uses: actions/setup-node@v4
+          with:
+            node-version: '22'
+        - name: Install dependencies
+          working-directory: web-app
+          run: npm ci
+        - name: Build the web application
+          working-directory: web-app
+          run: npm run build
