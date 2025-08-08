@@ -1,4 +1,13 @@
-import { Box, Button, Paper, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  IconButton,
+  Paper,
+  Snackbar,
+  TextField,
+  Typography,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
 import Request from "../core/Request";
 import type { LoginUserDTO } from "../models/LoginUserDTO";
@@ -8,6 +17,7 @@ import type { UserDTO } from "../models/UserDTO";
 const LoginPage: React.FC<{ setAuthUser: any }> = ({ setAuthUser }) => {
   const [userNameInput, setUserNameInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleLogin = async () => {
     const loginData: LoginUserDTO = {
@@ -32,66 +42,90 @@ const LoginPage: React.FC<{ setAuthUser: any }> = ({ setAuthUser }) => {
           role: user.role,
         });
       } else {
-        console.error(
+        setErrorMessage(
           "Server is currently unavailable. Please try again later."
         );
       }
     } else if (response.status === 401) {
       // handle unauthorized access
-      console.error("Invalid username or password");
+      setErrorMessage("Invalid username or password");
     } else {
       // server unavailable
-      console.error("Server is currently unavailable. Please try again later.");
+      setErrorMessage(
+        "Server is currently unavailable. Please try again later."
+      );
     }
   };
 
   return (
-    <Box
-      sx={{
-        width: "100vw",
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Paper
-        elevation={6}
+    <>
+      <Box
         sx={{
+          width: "100vw",
+          height: "100vh",
           display: "flex",
-          flexDirection: "column",
+          justifyContent: "center",
           alignItems: "center",
-          gap: "1rem",
-          width: "30%",
-          padding: "3rem",
         }}
       >
-        <Typography variant="h3" sx={{ mb: "1rem" }}>
-          Volabyte
-        </Typography>
-        <TextField
-          label="Username"
-          variant="outlined"
-          sx={{ width: "100%" }}
-          onChange={(e) => setUserNameInput(e.target.value.trim())}
-        />
-        <TextField
-          label="Password"
-          type="password"
-          variant="outlined"
-          sx={{ width: "100%" }}
-          onChange={(e) => setPasswordInput(e.target.value)}
-        />
-        <Button
-          variant="contained"
-          sx={{ width: "100%" }}
-          disabled={!userNameInput || !passwordInput}
-          onClick={handleLogin}
+        <Paper
+          elevation={6}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "1rem",
+            width: "30%",
+            padding: "3rem",
+          }}
         >
-          Login
-        </Button>
-      </Paper>
-    </Box>
+          <Typography variant="h3" sx={{ mb: "1rem" }}>
+            Volabyte
+          </Typography>
+          <TextField
+            label="Username"
+            variant="outlined"
+            sx={{ width: "100%" }}
+            onChange={(e) => setUserNameInput(e.target.value.trim())}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            variant="outlined"
+            sx={{ width: "100%" }}
+            onChange={(e) => setPasswordInput(e.target.value)}
+          />
+          <Button
+            variant="contained"
+            sx={{ width: "100%" }}
+            disabled={!userNameInput || !passwordInput}
+            onClick={handleLogin}
+          >
+            Login
+          </Button>
+        </Paper>
+      </Box>
+      <Snackbar
+        open={errorMessage != null}
+        autoHideDuration={7500}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        onClose={() => setErrorMessage(null)}
+        message={errorMessage}
+        action={
+          <IconButton
+            size="small"
+            aria-label="close"
+            color="inherit"
+            onClick={() => setErrorMessage(null)}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        }
+      />
+    </>
   );
 };
 
