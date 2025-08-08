@@ -107,7 +107,7 @@ const LoginPage: React.FC<{ setAuthUser: any }> = ({ setAuthUser }) => {
       </Box>
       <Snackbar
         open={errorMessage != null}
-        autoHideDuration={7500}
+        autoHideDuration={3000}
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "center",
