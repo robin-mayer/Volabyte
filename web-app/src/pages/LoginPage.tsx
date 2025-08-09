@@ -118,7 +118,7 @@ const LoginPage: React.FC<{ setAuthUser: any }> = ({ setAuthUser }) => {
         open={errorMessage != null && showSnackBar}
         anchorOrigin={{
           vertical: "bottom",
-          horizontal: "right",
+          horizontal: "center",
         }}
         autoHideDuration={2000}
         onClose={() => setShowSnackbar(false)}
