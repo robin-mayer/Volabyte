@@ -1,12 +1,4 @@
-import {
-  Alert,
-  Box,
-  Button,
-  Paper,
-  Snackbar,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, Button, Paper, Snackbar, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 import Request from "../core/Request";
 import type { LoginUserDTO } from "../models/LoginUserDTO";
@@ -85,13 +77,15 @@ const LoginPage: React.FC<{ setAuthUser: any }> = ({ setAuthUser }) => {
             padding: "3rem",
           }}
         >
-          <Typography variant="h3" sx={{ mb: "1rem" }}>
-            Volabyte
-          </Typography>
+          <img
+            src="public/images/logo_256.png"
+            alt="Volabyte logo"
+            height="50px"
+          />
           <TextField
             label="Username"
             variant="outlined"
-            sx={{ width: "100%" }}
+            sx={{ width: "100%", mt: "1rem" }}
             onChange={(e) => setUserNameInput(e.target.value.trim())}
             error={errorMessage === errorMessageWrongCredentials}
             autoFocus
