@@ -29,7 +29,13 @@ function App() {
         />
         <Route
           path="/"
-          element={authUser ? <DashboardPage /> : <Navigate to="/login" />}
+          element={
+            authUser ? (
+              <DashboardPage authUser={authUser} setAuthUser={setAuthUser} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
         <Route path="*" element={<Navigate to={authUser ? "/" : "/login"} />} />
       </Routes>

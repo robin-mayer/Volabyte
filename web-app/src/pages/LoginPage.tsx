@@ -74,6 +74,8 @@ const LoginPage: React.FC<{ setAuthUser: any }> = ({ setAuthUser }) => {
             alignItems: "center",
             gap: "1rem",
             width: "30%",
+            maxWidth: "450px",
+            minWidth: "400px",
             padding: "3rem",
           }}
         >
