@@ -41,6 +41,7 @@ const Header: React.FC<{ authUser: AuthUser; setAuthUser: any }> = ({
         label="Search"
         variant="outlined"
         size="small"
+        sx={{ width: "35%" }}
       />
       <React.Fragment>
         <IconButton
