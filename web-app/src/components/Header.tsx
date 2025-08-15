@@ -11,10 +11,11 @@ import {
 import { Logout } from "@mui/icons-material";
 import type { AuthUser } from "../models/AuthUser";
 
-const Header: React.FC<{ authUser: AuthUser; setAuthUser: any }> = ({
-  authUser,
-  setAuthUser,
-}) => {
+const Header: React.FC<{
+  height: number;
+  authUser: AuthUser;
+  setAuthUser: any;
+}> = ({ height, authUser, setAuthUser }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -27,13 +28,11 @@ const Header: React.FC<{ authUser: AuthUser; setAuthUser: any }> = ({
   return (
     <Box
       sx={{
-        height: "fit-content",
-        paddingY: "1rem",
+        height: `${height}rem`,
         paddingRight: "2rem",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
       }}
     >
       <TextField
