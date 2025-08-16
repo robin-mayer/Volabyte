@@ -6,10 +6,12 @@ import {
   ListItemText,
   Drawer,
   Box,
+  Typography,
+  Link,
 } from "@mui/material";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
 
-const drawerWidth = 240;
+const drawerWidth = 200;
 
 const Sidebar: React.FC<{ height: number }> = ({ height }) => {
   return (
@@ -33,7 +35,6 @@ const Sidebar: React.FC<{ height: number }> = ({ height }) => {
           height: `${height}rem`,
           display: "flex",
           alignItems: "center",
-          mb: "4rem",
           pl: "1rem",
         }}
       >
@@ -43,30 +44,38 @@ const Sidebar: React.FC<{ height: number }> = ({ height }) => {
           width="140px"
         />
       </Box>
-
-      <List>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <Inventory2Icon />
-            </ListItemIcon>
-            <ListItemText primary={"Files"} />
-          </ListItemButton>
-        </ListItem>
-      </List>
-      <List sx={{ justifySelf: "flex-end" }}>
-        <ListItemButton
-          component="a"
-          href="https://github.com/dein-username/dein-repo"
+      <Box
+        sx={{
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "space-between",
+          pt: "4rem",
+          pb: "1rem",
+        }}
+      >
+        <List sx={{ width: "100%" }}>
+          <ListItem disablePadding>
+            <ListItemButton>
+              <ListItemIcon>
+                <Inventory2Icon />
+              </ListItemIcon>
+              <ListItemText primary={"Files"} />
+            </ListItemButton>
+          </ListItem>
+        </List>
+        <Link
+          href="https://github.com/robin-mayer/Volabyte"
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noreferrer"
+          color="textPrimary"
         >
-          <ListItemIcon>
-            <Inventory2Icon />
-          </ListItemIcon>
-          <ListItemText primary="GitHub" />
-        </ListItemButton>
-      </List>
+          <Typography variant="body2" gutterBottom>
+            GitHub
+          </Typography>
+        </Link>
+      </Box>
     </Drawer>
   );
 };
