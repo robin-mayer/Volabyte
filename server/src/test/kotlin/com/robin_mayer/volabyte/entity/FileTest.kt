@@ -3,7 +3,8 @@ package com.robin_mayer.volabyte.entity
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertNotNull
+import java.time.Duration
+import java.util.Date
 
 
 class FileTest {
@@ -15,7 +16,7 @@ class FileTest {
             name = "example.txt",
             isDirectory = false,
             referencedFile = "file123",
-            parentDirectoryId = 10L,
+            parentId = 10L,
             ownerId = "user123"
         )
         file.id = 1L // Simulating ID generation, in a real scenario this would be handled by the database
@@ -28,7 +29,13 @@ class FileTest {
         assertEquals("example.txt", fileDTO.name)
         assertFalse(fileDTO.isDirectory)
         assertEquals("file123", fileDTO.referencedFile)
-        assertEquals(10L, fileDTO.parentDirectoryId)
+        assertEquals(10L, fileDTO.parentId)
+        assertEquals("user123", fileDTO.ownerId)
+        val dateDiff = Duration.between(
+            fileDTO.uploadedAt.toInstant(),
+            Date().toInstant()
+        ).abs()
+        kotlin.test.assertEquals(true, dateDiff.seconds < 15)
     }
 
 }
