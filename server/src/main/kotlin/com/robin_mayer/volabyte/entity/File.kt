@@ -1,5 +1,6 @@
 package com.robin_mayer.volabyte.entity
 
+import com.robin_mayer.volabyte.dto.response.FileDTO
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -24,4 +25,15 @@ class File (
     var id: Long? = null
     @Suppress("unused")
     val uploadedAt: Date = Date()
+
+    fun toDTO(): FileDTO {
+        return FileDTO(
+            id = id!!,
+            name = name,
+            isDirectory = isDirectory,
+            referencedFile = referencedFile,
+            parentDirectoryId = parentDirectoryId,
+            uploadedAt = uploadedAt
+        )
+    }
 }
