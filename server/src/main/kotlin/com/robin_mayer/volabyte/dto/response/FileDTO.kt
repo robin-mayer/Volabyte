@@ -7,6 +7,7 @@ data class FileDTO (
     val name: String,
     val isDirectory: Boolean,
     val referencedFile: String?,
-    val parentDirectoryId: Long?,
+    val parentId: Long?,
+    val ownerId: String,
     val uploadedAt: Date,
 )

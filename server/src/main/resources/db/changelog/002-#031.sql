@@ -10,7 +10,7 @@ create table files
     name                varchar(255) NOT NULL,
     is_directory        boolean NOT NULL,
     referenced_file     varchar(255) CONSTRAINT files_referenced_file_unique UNIQUE,
-    parent_directory_id bigint,
+    parent_id           bigint,
     owner_id            varchar(36) NOT NULL,
     uploaded_at         timestamp(6) NOT NULL
 );

@@ -16,7 +16,7 @@ class File (
     var isDirectory: Boolean,
     @Column(unique = true)
     var referencedFile: String?,
-    var parentDirectoryId: Long?,
+    var parentId: Long?,
     var ownerId: String
 ) {
 
@@ -32,7 +32,8 @@ class File (
             name = name,
             isDirectory = isDirectory,
             referencedFile = referencedFile,
-            parentDirectoryId = parentDirectoryId,
+            parentId = parentId,
+            ownerId = ownerId,
             uploadedAt = uploadedAt
         )
     }
