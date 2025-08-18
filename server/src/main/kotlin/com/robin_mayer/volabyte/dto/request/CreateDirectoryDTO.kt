@@ -1,6 +1,8 @@
 package com.robin_mayer.volabyte.dto.request
 
-data class CreateDirectoryDTO (
+class CreateDirectoryDTO (
     val parentId: Long?,
-    val name: String
-)
+    name: String
+) {
+    val name: String = name.trim()
+}

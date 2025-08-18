@@ -1,11 +1,10 @@
 package com.robin_mayer.volabyte.controller
 
 import com.robin_mayer.volabyte.dto.request.CreateDirectoryDTO
+import com.robin_mayer.volabyte.dto.request.LoginUserDTO
+import com.robin_mayer.volabyte.dto.response.AuthDataDTO
 import com.robin_mayer.volabyte.dto.response.FileDTO
-import com.robin_mayer.volabyte.enums.UserRole
 import com.robin_mayer.volabyte.exception.ApiExceptionDTO
-import com.robin_mayer.volabyte.service.JwtService
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,23 +21,22 @@ import kotlin.test.assertEquals
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class FileControllerTest @Autowired constructor(
-    private val jwtService: JwtService
-) {
+class FileControllerTest {
 
     @Autowired
     private lateinit var restTemplate: TestRestTemplate
 
-    private var accessToken: String? = null
-
-    @BeforeAll
-    fun init() {
-        accessToken = jwtService.generateToken("168bc3b2-5286-4572-a0a1-84f2d414f09c", UserRole.USER)
-    }
-
     private fun getHeadersWithAccessToken(): HttpHeaders {
         val headers = HttpHeaders()
-        headers.set("Authorization", "Bearer $accessToken")
+
+        val response = restTemplate.exchange(
+            "/users/login",
+            HttpMethod.POST,
+            HttpEntity(LoginUserDTO("bob", "password")),
+            AuthDataDTO::class.java
+        )
+
+        headers.set("Authorization", "Bearer ${response.body!!.accessToken}")
         return headers
     }
 
@@ -61,8 +59,40 @@ class FileControllerTest @Autowired constructor(
 
         // then
         assertEquals(HttpStatus.CREATED, response.statusCode)
-        assertEquals(3L, response.body?.id)
+        assertEquals(4L, response.body?.id)
         assertEquals("test-directory", response.body?.name)
+        assertEquals(null, response.body?.parentId)
+        assertEquals(true, response.body?.isDirectory)
+        assertEquals(null, response.body?.referencedFile)
+        assertEquals("168bc3b2-5286-4572-a0a1-84f2d414f09c", response.body?.ownerId)
+        val dateDiff = Duration.between(
+            response.body?.uploadedAt?.toInstant(),
+            Date().toInstant()
+        ).abs()
+        assertEquals(true, dateDiff.seconds < 15)
+    }
+
+    @Test
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
+    fun createDirectory_NoParentDoubleName() {
+        // given
+        val createDirectoryDTO = CreateDirectoryDTO(
+            name = "directory",
+            parentId = null
+        )
+
+        // when
+        val response = restTemplate.exchange(
+            "/files/directory",
+            HttpMethod.POST,
+            HttpEntity(createDirectoryDTO, getHeadersWithAccessToken()),
+            FileDTO::class.java
+        )
+
+        // then
+        assertEquals(HttpStatus.CREATED, response.statusCode)
+        assertEquals(4L, response.body?.id)
+        assertEquals("directory (1)", response.body?.name)
         assertEquals(null, response.body?.parentId)
         assertEquals(true, response.body?.isDirectory)
         assertEquals(null, response.body?.referencedFile)
@@ -93,7 +123,7 @@ class FileControllerTest @Autowired constructor(
 
         // then
         assertEquals(HttpStatus.CREATED, response.statusCode)
-        assertEquals(3L, response.body?.id)
+        assertEquals(4L, response.body?.id)
         assertEquals("test-directory-with-parent", response.body?.name)
         assertEquals(1L, response.body?.parentId)
         assertEquals(true, response.body?.isDirectory)

@@ -14,3 +14,10 @@ create table files
     owner_id            varchar(36) NOT NULL,
     uploaded_at         timestamp(6) NOT NULL
 );
+
+-- changeset Robin.Mayer:1755346255-3
+ALTER TABLE files
+    ADD CONSTRAINT files_referenced_file_or_is_directory
+    CHECK (
+        (is_directory = true  AND referenced_file IS NULL) OR (is_directory = false AND referenced_file IS NOT NULL)
+    );

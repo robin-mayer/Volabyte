@@ -1,0 +1,70 @@
+package com.robin_mayer.volabyte.service
+
+import com.robin_mayer.volabyte.dto.request.CreateDirectoryDTO
+import com.robin_mayer.volabyte.entity.File
+import com.robin_mayer.volabyte.exception.ApiException
+import com.robin_mayer.volabyte.repository.FileRepository
+import org.springframework.http.HttpStatus
+import org.springframework.security.core.Authentication
+import org.springframework.stereotype.Service
+
+@Service
+class FileService (
+    private val fileRepository: FileRepository
+) {
+
+    fun createDirectory(
+        input: CreateDirectoryDTO,
+        authentication: Authentication
+    ): File {
+        if(input.parentId != null) {
+            val parentFile = fileRepository.findByIdAndOwnerId(input.parentId, authentication.name)
+                ?: throw ApiException("Parent does not exist", HttpStatus.BAD_REQUEST)
+            if (!parentFile.isDirectory) {
+                throw ApiException("Parent must be a directory", HttpStatus.BAD_REQUEST)
+            }
+        }
+
+        val newFile = File(
+            name = generateUniqueName(input.parentId, input.name, authentication.name),
+            isDirectory = true,
+            referencedFile = null,
+            parentId = input.parentId,
+            ownerId = authentication.name,
+        )
+
+        return fileRepository.save(newFile)
+    }
+
+    private fun generateUniqueName(
+        parentId: Long?,
+        name: String,
+        ownerId: String
+    ): String {
+
+        if (
+            !fileRepository.existsByParentIdAndOwnerIdAndNameIgnoreCase(
+                parentId,
+                ownerId,
+                name
+            )
+        ) {
+            return name
+        }
+
+        var counter = 1
+        while (true) {
+            val newName = "$name ($counter)"
+            if (
+                !fileRepository.existsByParentIdAndOwnerIdAndNameIgnoreCase(
+                    parentId = parentId,
+                    name = newName,
+                    ownerId = ownerId
+                )
+            ) {
+                return newName
+            }
+            counter++
+        }
+    }
+}
