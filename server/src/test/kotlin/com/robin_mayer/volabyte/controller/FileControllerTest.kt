@@ -51,7 +51,7 @@ class FileControllerTest {
 
         // when
         val response = restTemplate.exchange(
-            "/files/directory",
+            "/files/directories",
             HttpMethod.POST,
             HttpEntity(createDirectoryDTO, getHeadersWithAccessToken()),
             FileDTO::class.java
@@ -83,7 +83,7 @@ class FileControllerTest {
 
         // when
         val response = restTemplate.exchange(
-            "/files/directory",
+            "/files/directories",
             HttpMethod.POST,
             HttpEntity(createDirectoryDTO, getHeadersWithAccessToken()),
             FileDTO::class.java
@@ -115,7 +115,7 @@ class FileControllerTest {
 
         // when
         val response = restTemplate.exchange(
-            "/files/directory",
+            "/files/directories",
             HttpMethod.POST,
             HttpEntity(createDirectoryDTO, getHeadersWithAccessToken()),
             FileDTO::class.java
@@ -146,7 +146,7 @@ class FileControllerTest {
 
         // when
         val response = restTemplate.exchange(
-            "/files/directory",
+            "/files/directories",
             HttpMethod.POST,
             HttpEntity(createDirectoryDTO, getHeadersWithAccessToken()),
             ApiExceptionDTO::class.java
@@ -167,7 +167,7 @@ class FileControllerTest {
 
         // when
         val response = restTemplate.exchange(
-            "/files/directory",
+            "/files/directories",
             HttpMethod.POST,
             HttpEntity(createDirectoryDTO, getHeadersWithAccessToken()),
             ApiExceptionDTO::class.java
@@ -188,7 +188,7 @@ class FileControllerTest {
 
         // when
         val response = restTemplate.exchange(
-            "/files/directory",
+            "/files/directories",
             HttpMethod.POST,
             HttpEntity(createDirectoryDTO, getHeadersWithAccessToken()),
             ApiExceptionDTO::class.java
@@ -209,7 +209,7 @@ class FileControllerTest {
 
         // when
         val response = restTemplate.exchange(
-            "/files/directory",
+            "/files/directories",
             HttpMethod.POST,
             HttpEntity(createDirectoryDTO, null),
             ApiExceptionDTO::class.java

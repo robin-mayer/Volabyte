@@ -3,6 +3,7 @@ import Header from "../components/Header";
 import type { AuthUser } from "../models/AuthUser";
 import Sidebar from "../components/Sidebar";
 import { Box } from "@mui/material";
+import { Outlet } from "react-router-dom";
 
 const DashboardPage: React.FC<{ authUser: AuthUser; setAuthUser: any }> = ({
   authUser,
@@ -25,8 +26,12 @@ const DashboardPage: React.FC<{ authUser: AuthUser; setAuthUser: any }> = ({
             height: `calc(100% - ${headerHeightInRem}rem)`,
             border: "1px solid rgba(0, 0, 0, 0.12)",
             borderTopLeftRadius: "8px",
+            pt: "1.5rem",
+            pl: "2rem",
           }}
-        ></Box>
+        >
+          <Outlet />
+        </Box>
       </Box>
     </Box>
   );

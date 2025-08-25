@@ -15,7 +15,7 @@ class FileController (
     private val fileService: FileService
 ) {
 
-    @PostMapping("/files/directory")
+    @PostMapping("/files/directories")
     fun createDirectory(
         @RequestBody createDirectoryDTO: CreateDirectoryDTO,
         authentication: Authentication
