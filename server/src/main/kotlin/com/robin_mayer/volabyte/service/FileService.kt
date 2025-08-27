@@ -24,7 +24,7 @@ class FileService (
                 throw ApiException("Parent must be a directory", HttpStatus.BAD_REQUEST)
             }
         }
-        return fileRepository.findByOwnerIdAndParentId(ownerId, parentId)
+        return fileRepository.findByOwnerIdAndParentIdOrderByName(ownerId, parentId)
     }
 
     fun createDirectory(

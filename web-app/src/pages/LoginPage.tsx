@@ -79,11 +79,7 @@ const LoginPage: React.FC<{ setAuthUser: any }> = ({ setAuthUser }) => {
             padding: "3rem",
           }}
         >
-          <img
-            src="public/images/logo_256.png"
-            alt="Volabyte logo"
-            height="50px"
-          />
+          <img src="/images/logo_256.png" alt="Volabyte logo" height="50px" />
           <TextField
             label="Username"
             variant="outlined"

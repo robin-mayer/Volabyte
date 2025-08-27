@@ -23,11 +23,11 @@ const DashboardPage: React.FC<{ authUser: AuthUser; setAuthUser: any }> = ({
         <Box
           sx={{
             width: "100%",
-            height: `calc(100% - ${headerHeightInRem}rem)`,
+            height: `calc(100vh - ${headerHeightInRem}rem)`,
             border: "1px solid rgba(0, 0, 0, 0.12)",
             borderTopLeftRadius: "8px",
-            pt: "1.5rem",
-            pl: "2rem",
+            py: "1.5rem",
+            px: "2rem",
           }}
         >
           <Outlet />

@@ -7,9 +7,11 @@ import Request from "../core/Request";
 import type { FileDTO } from "../models/FileDTO";
 import { Alert, Snackbar } from "@mui/material";
 
-const FileQuickActions: React.FC<{ accessToken: string }> = ({
-  accessToken,
-}) => {
+const FileQuickActions: React.FC<{
+  accessToken: string;
+  currentParentId: number | null;
+  setFiles: any;
+}> = ({ accessToken, currentParentId, setFiles }) => {
   const [openCreateFolderDialog, setOpenCreateFolderDialog] =
     React.useState<boolean>(false);
   const [showSnackBar, setShowSnackbar] = React.useState<boolean>(false);
@@ -18,7 +20,7 @@ const FileQuickActions: React.FC<{ accessToken: string }> = ({
     setOpenCreateFolderDialog(false);
 
     const createDirectoryData: CreateDirectoryDTO = {
-      parentId: null, // adjust ones a file browser is implemented
+      parentId: currentParentId,
       name,
     };
 
@@ -29,7 +31,9 @@ const FileQuickActions: React.FC<{ accessToken: string }> = ({
     );
     if (response.status === 201) {
       const createdFile: FileDTO = await response.json();
-      console.log("Created directory:", createdFile); // add to file explorer list once that exists
+      setFiles((prevFiles: FileDTO[]) =>
+        [...prevFiles, createdFile].sort((a, b) => a.name.localeCompare(b.name))
+      );
     } else {
       setShowSnackbar(true);
     }
