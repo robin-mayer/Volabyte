@@ -1,9 +1,12 @@
 package com.robin_mayer.volabyte.service
 
+import com.robin_mayer.volabyte.dto.request.LoginUserDTO
 import com.robin_mayer.volabyte.dto.response.AuthDataDTO
+import com.robin_mayer.volabyte.entity.Session
 import com.robin_mayer.volabyte.entity.User
 import com.robin_mayer.volabyte.enums.UserRole
 import com.robin_mayer.volabyte.exception.ApiException
+import com.robin_mayer.volabyte.repository.SessionRepository
 import com.robin_mayer.volabyte.repository.UserRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
@@ -17,16 +20,17 @@ import java.util.Date
 class UserService (
     private val tokenService: TokenService,
     private val userRepository: UserRepository,
+    private val sessionRepository: SessionRepository
 ) {
 
     @Value("\${user.password.hash.salt}")
     val passwordHashSalt: String? = null
     private val passwordEncoder = BCryptPasswordEncoder()
 
-    fun login(userName: String, password: String): AuthDataDTO {
-        val user = userRepository.findByUserName(userName) ?: throw ApiException("Invalid credentials", HttpStatus.UNAUTHORIZED)
+    fun login(input: LoginUserDTO): AuthDataDTO {
+        val user = userRepository.findByUserName(input.userName) ?: throw ApiException("Invalid credentials", HttpStatus.UNAUTHORIZED)
 
-        if (!passwordEncoder.matches(password + passwordHashSalt, user.password)) {
+        if (!passwordEncoder.matches(input.password + passwordHashSalt, user.password)) {
             throw ApiException("Invalid credentials", HttpStatus.UNAUTHORIZED)
         }
 
@@ -34,13 +38,19 @@ class UserService (
         userRepository.save(user)
 
         val accessTokenPair = tokenService.generateAccessToken(user.id!!, user.role)
-        val refreshTokenPair = tokenService.generateRefreshToken(user.id!!)
+        val session = sessionRepository.save(
+            Session(
+                userId = user.id!!,
+                deviceId = input.deviceId,
+                deviceName = input.deviceName,
+            )
+        )
 
         return AuthDataDTO(
             accessToken = accessTokenPair.first,
             accessTokenExpiresAt = accessTokenPair.second,
-            refreshToken = refreshTokenPair.first,
-            refreshTokenExpiresAt = refreshTokenPair.second,
+            refreshToken = session.refreshToken,
+            refreshTokenExpiresAt = session.expiresAt,
         )
     }
 

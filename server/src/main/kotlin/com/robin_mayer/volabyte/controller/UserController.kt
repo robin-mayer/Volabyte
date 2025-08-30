@@ -21,10 +21,7 @@ class UserController (
     fun login(
         @RequestBody loginUserDTO: LoginUserDTO
     ): ResponseEntity<AuthDataDTO> {
-        val authData = userService.login(
-            loginUserDTO.userName,
-            loginUserDTO.password
-        )
+        val authData = userService.login(loginUserDTO)
         return ResponseEntity(authData, HttpStatus.OK)
     }
 
