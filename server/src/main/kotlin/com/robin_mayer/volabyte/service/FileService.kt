@@ -13,6 +13,20 @@ class FileService (
     private val fileRepository: FileRepository
 ) {
 
+    fun getFiles(
+        ownerId: String,
+        parentId: Long?
+    ): List<File> {
+        if(parentId != null) {
+            val parentFile = fileRepository.findByIdAndOwnerId(parentId, ownerId)
+                ?: throw ApiException("Parent does not exist", HttpStatus.BAD_REQUEST)
+            if (!parentFile.isDirectory) {
+                throw ApiException("Parent must be a directory", HttpStatus.BAD_REQUEST)
+            }
+        }
+        return fileRepository.findByOwnerIdAndParentIdOrderByName(ownerId, parentId)
+    }
+
     fun createDirectory(
         input: CreateDirectoryDTO,
         authentication: Authentication

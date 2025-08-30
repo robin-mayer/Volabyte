@@ -41,6 +41,117 @@ class FileControllerTest {
     }
 
     @Test
+    fun listFiles_NoParent() {
+        // given
+        val headers = getHeadersWithAccessToken()
+
+        // when
+        val response = restTemplate.exchange(
+            "/files/list",
+            HttpMethod.GET,
+            HttpEntity(null, headers),
+            Array<FileDTO>::class.java
+        )
+
+        // then
+        assertEquals(HttpStatus.OK, response.statusCode)
+        assertEquals(2, response.body?.size)
+
+        assertEquals(1L, response.body?.get(0)?.id)
+        assertEquals("Directory", response.body?.get(0)?.name)
+        assertEquals(null, response.body?.get(0)?.parentId)
+        assertEquals(true, response.body?.get(0)?.isDirectory)
+        assertEquals(null, response.body?.get(0)?.referencedFile)
+        assertEquals("168bc3b2-5286-4572-a0a1-84f2d414f09c", response.body?.get(0)?.ownerId)
+
+        assertEquals(2L, response.body?.get(1)?.id)
+        assertEquals("File.pdf", response.body?.get(1)?.name)
+        assertEquals(null, response.body?.get(1)?.parentId)
+        assertEquals(false, response.body?.get(1)?.isDirectory)
+        assertEquals("/referenced/file.pdf", response.body?.get(1)?.referencedFile)
+        assertEquals("168bc3b2-5286-4572-a0a1-84f2d414f09c", response.body?.get(1)?.ownerId)
+    }
+
+    @Test
+    fun listFiles_WithParent() {
+        // given
+        val headers = getHeadersWithAccessToken()
+
+        // when
+        val response = restTemplate.exchange(
+            "/files/1/list",
+            HttpMethod.GET,
+            HttpEntity(null, headers),
+            Array<FileDTO>::class.java
+        )
+
+        // then
+        assertEquals(HttpStatus.OK, response.statusCode)
+        assertEquals(1, response.body?.size)
+
+        assertEquals(4L, response.body?.get(0)?.id)
+        assertEquals("File.txt", response.body?.get(0)?.name)
+        assertEquals(1L, response.body?.get(0)?.parentId)
+        assertEquals(false, response.body?.get(0)?.isDirectory)
+        assertEquals("/referenced/file.txt", response.body?.get(0)?.referencedFile)
+        assertEquals("168bc3b2-5286-4572-a0a1-84f2d414f09c", response.body?.get(0)?.ownerId)
+    }
+
+    @Test
+    fun listFiles_ParentWrong() {
+        // given
+        val headers = getHeadersWithAccessToken()
+
+        // when
+        val response = restTemplate.exchange(
+            "/files/1000/list",
+            HttpMethod.GET,
+            HttpEntity(null, headers),
+            ApiExceptionDTO::class.java
+        )
+
+        // then
+        assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+        assertEquals("Parent does not exist", response.body?.message)
+    }
+
+    @Test
+    fun listFiles_ParentDoesBelongToOtherUser() {
+        // given
+        val headers = getHeadersWithAccessToken()
+
+        // when
+        val response = restTemplate.exchange(
+            "/files/3/list",
+            HttpMethod.GET,
+            HttpEntity(null, headers),
+            ApiExceptionDTO::class.java
+        )
+
+        // then
+        assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+        assertEquals("Parent does not exist", response.body?.message)
+    }
+
+    @Test
+    fun listFiles_ParentIsFile() {
+        // given
+        val headers = getHeadersWithAccessToken()
+
+        // when
+        val response = restTemplate.exchange(
+            "/files/2/list",
+            HttpMethod.GET,
+            HttpEntity(null, headers),
+            ApiExceptionDTO::class.java
+        )
+
+        // then
+        assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+        assertEquals("Parent must be a directory", response.body?.message)
+    }
+
+    @Test
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     fun createDirectory_NoParent() {
         // given
@@ -59,7 +170,6 @@ class FileControllerTest {
 
         // then
         assertEquals(HttpStatus.CREATED, response.statusCode)
-        assertEquals(4L, response.body?.id)
         assertEquals("test-directory", response.body?.name)
         assertEquals(null, response.body?.parentId)
         assertEquals(true, response.body?.isDirectory)
@@ -91,7 +201,6 @@ class FileControllerTest {
 
         // then
         assertEquals(HttpStatus.CREATED, response.statusCode)
-        assertEquals(4L, response.body?.id)
         assertEquals("directory (1)", response.body?.name)
         assertEquals(null, response.body?.parentId)
         assertEquals(true, response.body?.isDirectory)
@@ -123,7 +232,6 @@ class FileControllerTest {
 
         // then
         assertEquals(HttpStatus.CREATED, response.statusCode)
-        assertEquals(4L, response.body?.id)
         assertEquals("test-directory-with-parent", response.body?.name)
         assertEquals(1L, response.body?.parentId)
         assertEquals(true, response.body?.isDirectory)

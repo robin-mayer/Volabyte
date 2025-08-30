@@ -38,11 +38,7 @@ const Sidebar: React.FC<{ height: number }> = ({ height }) => {
           pl: "1rem",
         }}
       >
-        <img
-          src="public/images/logo_128.png"
-          alt="Volabyte logo"
-          width="140px"
-        />
+        <img src="/images/logo_128.png" alt="Volabyte logo" width="140px" />
       </Box>
       <Box
         sx={{
