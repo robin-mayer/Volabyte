@@ -11,7 +11,6 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import java.util.Date
-import java.util.UUID
 
 @Entity
 @Table(name = "users")
@@ -25,18 +24,15 @@ class User (
 ) {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Suppress("unused")
-    var id: Long? = null
-    @Column(unique = true)
-    val userId = UUID.randomUUID().toString()
+    @GeneratedValue(strategy = GenerationType.UUID)
+    val id: String? = null
     @Suppress("unused")
     val createdAt = Date()
     var lastLoginAt = Date()
 
     fun toDTO(): UserDTO {
         return UserDTO(
-            userId = userId,
+            id = id!!,
             userName = userName,
             displayName = displayName,
             role = role
