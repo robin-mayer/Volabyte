@@ -16,13 +16,13 @@ class File (
     var isDirectory: Boolean,
     @Column(unique = true)
     var referencedFile: String?,
-    var parentId: Long?,
+    var parentId: String?,
     var ownerId: String
 ) {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null
+    @GeneratedValue(strategy = GenerationType.UUID)
+    var id: String? = null
     @Suppress("unused")
     val uploadedAt: Date = Date()
 

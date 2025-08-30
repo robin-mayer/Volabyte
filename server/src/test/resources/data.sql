@@ -10,14 +10,14 @@ values (
        );
 
 
-insert into files (name, is_directory, referenced_file, parent_id, owner_id, uploaded_at)
-values ('Directory', true, null, null, '168bc3b2-5286-4572-a0a1-84f2d414f09c', '2025-07-21 14:30:45.000000');
+insert into files (id, name, is_directory, referenced_file, parent_id, owner_id, uploaded_at)
+values ('d0bbdf22-60d3-4362-a32e-e275cd12aa86', 'Directory', true, null, null, '168bc3b2-5286-4572-a0a1-84f2d414f09c', '2025-07-21 14:30:45.000000');
 
-insert into files (name, is_directory, referenced_file, parent_id, owner_id, uploaded_at)
-values ('File.pdf', false, '/referenced/file.pdf', null, '168bc3b2-5286-4572-a0a1-84f2d414f09c', '2025-07-21 15:30:45.000000');
+insert into files (id, name, is_directory, referenced_file, parent_id, owner_id, uploaded_at)
+values ('2106bb0e-3429-41ae-84a7-59af82adae87', 'File.pdf', false, '/referenced/file.pdf', null, '168bc3b2-5286-4572-a0a1-84f2d414f09c', '2025-07-21 15:30:45.000000');
 
-insert into files (name, is_directory, referenced_file, parent_id, owner_id, uploaded_at)
-values ('Directory_other_user', true, null, null, '168bc3b2-5286-4572-a0a1-84f2d414f09d', '2025-07-21 16:30:45.000000');
+insert into files (id, name, is_directory, referenced_file, parent_id, owner_id, uploaded_at)
+values ('e903be49-d43a-4e52-96af-c69dc7e6ebfd', 'Directory_other_user', true, null, null, '168bc3b2-5286-4572-a0a1-84f2d414f09d', '2025-07-21 16:30:45.000000');
 
-insert into files (name, is_directory, referenced_file, parent_id, owner_id, uploaded_at)
-values ('File.txt', false, '/referenced/file.txt', 1, '168bc3b2-5286-4572-a0a1-84f2d414f09c', '2025-07-21 15:30:45.000000');
+insert into files (id, name, is_directory, referenced_file, parent_id, owner_id, uploaded_at)
+values ('e24b75ed-1ad3-49cb-8dc2-9079937114fd', 'File.txt', false, '/referenced/file.txt', 'd0bbdf22-60d3-4362-a32e-e275cd12aa86', '168bc3b2-5286-4572-a0a1-84f2d414f09c', '2025-07-21 15:30:45.000000');

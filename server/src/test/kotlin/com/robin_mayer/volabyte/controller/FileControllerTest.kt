@@ -57,14 +57,14 @@ class FileControllerTest {
         assertEquals(HttpStatus.OK, response.statusCode)
         assertEquals(2, response.body?.size)
 
-        assertEquals(1L, response.body?.get(0)?.id)
+        assertEquals("d0bbdf22-60d3-4362-a32e-e275cd12aa86", response.body?.get(0)?.id)
         assertEquals("Directory", response.body?.get(0)?.name)
         assertEquals(null, response.body?.get(0)?.parentId)
         assertEquals(true, response.body?.get(0)?.isDirectory)
         assertEquals(null, response.body?.get(0)?.referencedFile)
         assertEquals("168bc3b2-5286-4572-a0a1-84f2d414f09c", response.body?.get(0)?.ownerId)
 
-        assertEquals(2L, response.body?.get(1)?.id)
+        assertEquals("2106bb0e-3429-41ae-84a7-59af82adae87", response.body?.get(1)?.id)
         assertEquals("File.pdf", response.body?.get(1)?.name)
         assertEquals(null, response.body?.get(1)?.parentId)
         assertEquals(false, response.body?.get(1)?.isDirectory)
@@ -79,7 +79,7 @@ class FileControllerTest {
 
         // when
         val response = restTemplate.exchange(
-            "/files/1/list",
+            "/files/d0bbdf22-60d3-4362-a32e-e275cd12aa86/list",
             HttpMethod.GET,
             HttpEntity(null, headers),
             Array<FileDTO>::class.java
@@ -89,9 +89,9 @@ class FileControllerTest {
         assertEquals(HttpStatus.OK, response.statusCode)
         assertEquals(1, response.body?.size)
 
-        assertEquals(4L, response.body?.get(0)?.id)
+        assertEquals("e24b75ed-1ad3-49cb-8dc2-9079937114fd", response.body?.get(0)?.id)
         assertEquals("File.txt", response.body?.get(0)?.name)
-        assertEquals(1L, response.body?.get(0)?.parentId)
+        assertEquals("d0bbdf22-60d3-4362-a32e-e275cd12aa86", response.body?.get(0)?.parentId)
         assertEquals(false, response.body?.get(0)?.isDirectory)
         assertEquals("/referenced/file.txt", response.body?.get(0)?.referencedFile)
         assertEquals("168bc3b2-5286-4572-a0a1-84f2d414f09c", response.body?.get(0)?.ownerId)
@@ -104,7 +104,7 @@ class FileControllerTest {
 
         // when
         val response = restTemplate.exchange(
-            "/files/1000/list",
+            "/files/random-uuid-id/list",
             HttpMethod.GET,
             HttpEntity(null, headers),
             ApiExceptionDTO::class.java
@@ -122,7 +122,7 @@ class FileControllerTest {
 
         // when
         val response = restTemplate.exchange(
-            "/files/3/list",
+            "/files/e903be49-d43a-4e52-96af-c69dc7e6ebfd/list",
             HttpMethod.GET,
             HttpEntity(null, headers),
             ApiExceptionDTO::class.java
@@ -140,7 +140,7 @@ class FileControllerTest {
 
         // when
         val response = restTemplate.exchange(
-            "/files/2/list",
+            "/files/2106bb0e-3429-41ae-84a7-59af82adae87/list",
             HttpMethod.GET,
             HttpEntity(null, headers),
             ApiExceptionDTO::class.java
@@ -219,7 +219,7 @@ class FileControllerTest {
         // given
         val createDirectoryDTO = CreateDirectoryDTO(
             name = "test-directory-with-parent",
-            parentId = 1L
+            parentId = "d0bbdf22-60d3-4362-a32e-e275cd12aa86"
         )
 
         // when
@@ -233,7 +233,7 @@ class FileControllerTest {
         // then
         assertEquals(HttpStatus.CREATED, response.statusCode)
         assertEquals("test-directory-with-parent", response.body?.name)
-        assertEquals(1L, response.body?.parentId)
+        assertEquals("d0bbdf22-60d3-4362-a32e-e275cd12aa86", response.body?.parentId)
         assertEquals(true, response.body?.isDirectory)
         assertEquals(null, response.body?.referencedFile)
         assertEquals("168bc3b2-5286-4572-a0a1-84f2d414f09c", response.body?.ownerId)
@@ -249,7 +249,7 @@ class FileControllerTest {
         // given
         val createDirectoryDTO = CreateDirectoryDTO(
             name = "test-directory-with-file-parent",
-            parentId = 2L
+            parentId = "2106bb0e-3429-41ae-84a7-59af82adae87"
         )
 
         // when
@@ -270,7 +270,7 @@ class FileControllerTest {
         // given
         val createDirectoryDTO = CreateDirectoryDTO(
             name = "test-directory-with-invalid-parent",
-            parentId = 999L
+            parentId = "random_uuid"
         )
 
         // when
@@ -291,7 +291,7 @@ class FileControllerTest {
         // given
         val createDirectoryDTO = CreateDirectoryDTO(
             name = "test-directory-with-invalid-parent",
-            parentId = 3L
+            parentId = "e903be49-d43a-4e52-96af-c69dc7e6ebfd"
         )
 
         // when
