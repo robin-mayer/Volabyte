@@ -1,7 +1,7 @@
 import type { UserRole } from "../types/UserRole";
 
 export interface UserDTO {
-  userId: string;
+  id: string;
   userName: string;
   displayName: string;
   role: UserRole;

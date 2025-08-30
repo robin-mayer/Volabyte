@@ -2,7 +2,7 @@ import type { UserRole } from "../types/UserRole";
 
 export interface AuthUser {
   accessToken: string;
-  userId: string;
+  id: string;
   userName: string;
   displayName: string;
   role: UserRole;
