@@ -9,7 +9,7 @@ import { Alert, Snackbar } from "@mui/material";
 
 const FileQuickActions: React.FC<{
   accessToken: string;
-  currentParentId: number | null;
+  currentParentId: string | null;
   setFiles: any;
 }> = ({ accessToken, currentParentId, setFiles }) => {
   const [openCreateFolderDialog, setOpenCreateFolderDialog] =

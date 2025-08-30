@@ -34,7 +34,7 @@ class UserService (
         userRepository.save(user)
 
         return AuthDataDTO(
-            accessToken = jwtService.generateToken(user.userId, user.role),
+            accessToken = jwtService.generateToken(user.id!!, user.role),
         )
     }
 
@@ -63,7 +63,7 @@ class UserService (
         return userRepository.existsByUserName(userName)
     }
 
-    fun getUser(userId: String): User {
-        return userRepository.findByUserId(userId) ?: throw ApiException("User not found", HttpStatus.NOT_FOUND)
+    fun getUser(id: String): User {
+        return userRepository.findById(id) ?: throw ApiException("User not found", HttpStatus.NOT_FOUND)
     }
 }

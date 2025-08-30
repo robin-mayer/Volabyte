@@ -37,7 +37,7 @@ const LoginPage: React.FC<{ setAuthUser: any }> = ({ setAuthUser }) => {
         const user: UserDTO = await selfResponse.json();
         setAuthUser({
           accessToken: authData.accessToken,
-          userId: user.userId,
+          id: user.id,
           userName: user.userName,
           displayName: user.displayName,
           role: user.role,

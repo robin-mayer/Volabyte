@@ -106,7 +106,7 @@ class UserControllerTest @Autowired constructor(
         )
 
         assertEquals(HttpStatus.OK, response.statusCode)
-        assertEquals("168bc3b2-5286-4572-a0a1-84f2d414f09c", response.body?.userId)
+        assertEquals("168bc3b2-5286-4572-a0a1-84f2d414f09c", response.body?.id)
         assertEquals("bob", response.body?.userName)
         assertEquals("Bob", response.body?.displayName)
         assertEquals(UserRole.USER, response.body?.role)

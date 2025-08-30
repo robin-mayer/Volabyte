@@ -34,7 +34,7 @@ const FileBreadcrumbs: React.FC<{
     };
   }) as typeof Chip;
 
-  function handleClick(id: number | null) {
+  function handleClick(id: string | null) {
     if (id) {
       const index = breadcrumbs.findIndex((b) => b.id === id);
       setBreadcrumbs(breadcrumbs.slice(0, index + 1));

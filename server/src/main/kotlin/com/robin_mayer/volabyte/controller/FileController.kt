@@ -20,7 +20,7 @@ class FileController (
     @GetMapping(value = ["/files/list", "/files/{parentId}/list"])
     fun listFiles(
         authentication: Authentication,
-        @PathVariable(required = false) parentId: Long?
+        @PathVariable(required = false) parentId: String?
     ): ResponseEntity<List<FileDTO>> {
         val files = fileService.getFiles(authentication.name, parentId)
         return ResponseEntity.ok(files.map { it.toDTO() })

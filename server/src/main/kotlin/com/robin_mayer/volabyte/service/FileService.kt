@@ -7,15 +7,17 @@ import com.robin_mayer.volabyte.repository.FileRepository
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional
 class FileService (
     private val fileRepository: FileRepository
 ) {
 
     fun getFiles(
         ownerId: String,
-        parentId: Long?
+        parentId: String?
     ): List<File> {
         if(parentId != null) {
             val parentFile = fileRepository.findByIdAndOwnerId(parentId, ownerId)
@@ -51,14 +53,14 @@ class FileService (
     }
 
     private fun generateUniqueName(
-        parentId: Long?,
+        parentId: String?,
         name: String,
         ownerId: String
     ): String {
         if (
-            !fileRepository.existsByParentIdAndOwnerIdAndNameIgnoreCase(
-                parentId,
+            !fileRepository.existsByOwnerIdAndParentIdAndNameIgnoreCase(
                 ownerId,
+                parentId,
                 name
             )
         ) {
@@ -69,10 +71,10 @@ class FileService (
         while (true) {
             val newName = "$name ($counter)"
             if (
-                !fileRepository.existsByParentIdAndOwnerIdAndNameIgnoreCase(
-                    parentId = parentId,
-                    name = newName,
-                    ownerId = ownerId
+                !fileRepository.existsByOwnerIdAndParentIdAndNameIgnoreCase(
+                    ownerId,
+                    parentId,
+                    newName
                 )
             ) {
                 return newName
