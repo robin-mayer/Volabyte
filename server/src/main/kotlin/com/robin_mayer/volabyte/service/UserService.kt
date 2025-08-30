@@ -33,8 +33,14 @@ class UserService (
         user.lastLoginAt = Date()
         userRepository.save(user)
 
+        val accessTokenPair = tokenService.generateAccessToken(user.id!!, user.role)
+        val refreshTokenPair = tokenService.generateRefreshToken(user.id!!)
+
         return AuthDataDTO(
-            accessToken = tokenService.generateAccessToken(user.id!!, user.role).first,
+            accessToken = accessTokenPair.first,
+            accessTokenExpiresAt = accessTokenPair.second,
+            refreshToken = refreshTokenPair.first,
+            refreshTokenExpiresAt = refreshTokenPair.second,
         )
     }
 
@@ -64,6 +70,11 @@ class UserService (
     }
 
     fun getUser(id: String): User {
-        return userRepository.findById(id) ?: throw ApiException("User not found", HttpStatus.NOT_FOUND)
+        val user = userRepository.findById(id)
+        if(user.isPresent) {
+            return user.get()
+        } else {
+            throw ApiException("User not found", HttpStatus.NOT_FOUND)
+        }
     }
 }
