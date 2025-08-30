@@ -31,7 +31,7 @@ const FileTable: React.FC<{ files: FileDTO[]; setBreadcrumbs: any }> = ({
       <Table aria-label="file table" stickyHeader>
         <TableHead>
           <TableRow>
-            <TableCell></TableCell>
+            <TableCell padding="checkbox" align="center"></TableCell>
             <TableCell>Name</TableCell>
             <TableCell>Uploaded At</TableCell>
           </TableRow>
@@ -51,7 +51,7 @@ const FileTable: React.FC<{ files: FileDTO[]; setBreadcrumbs: any }> = ({
                 handleDoubleClick(file);
               }}
             >
-              <TableCell>
+              <TableCell padding="checkbox" align="center">
                 {file.isDirectory ? <FolderIcon /> : <DescriptionIcon />}
               </TableCell>
               <TableCell>{file.name}</TableCell>
