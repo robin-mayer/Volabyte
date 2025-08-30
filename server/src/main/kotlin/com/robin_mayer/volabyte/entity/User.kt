@@ -25,7 +25,7 @@ class User (
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    val id: String? = null
+    var id: String? = null
     @Suppress("unused")
     val createdAt = Date()
     var lastLoginAt = Date()
