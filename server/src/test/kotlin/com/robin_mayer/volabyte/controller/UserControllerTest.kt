@@ -5,7 +5,7 @@ import com.robin_mayer.volabyte.dto.response.AuthDataDTO
 import com.robin_mayer.volabyte.dto.response.UserDTO
 import com.robin_mayer.volabyte.enums.UserRole
 import com.robin_mayer.volabyte.exception.ApiExceptionDTO
-import com.robin_mayer.volabyte.service.JwtService
+import com.robin_mayer.volabyte.service.TokenService
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -22,7 +22,7 @@ import kotlin.test.assertEquals
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserControllerTest @Autowired constructor(
-    private val jwtService: JwtService
+    private val tokenService: TokenService
 ) {
 
     @Autowired
@@ -32,7 +32,7 @@ class UserControllerTest @Autowired constructor(
 
     @BeforeAll
     fun init() {
-        accessToken = jwtService.generateToken("168bc3b2-5286-4572-a0a1-84f2d414f09c", UserRole.USER)
+        accessToken = tokenService.generateAccessToken("168bc3b2-5286-4572-a0a1-84f2d414f09c", UserRole.USER)
     }
 
     private fun getHeadersWithAccessToken(): HttpHeaders {

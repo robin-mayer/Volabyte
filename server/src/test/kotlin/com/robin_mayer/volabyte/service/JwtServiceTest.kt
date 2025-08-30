@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class JwtServiceTest @Autowired constructor (
-    private val jwtService: JwtService,
+    private val tokenService: TokenService,
 ) {
 
     @Test
@@ -18,8 +18,8 @@ class JwtServiceTest @Autowired constructor (
         val role = UserRole.USER
 
         // when
-        val token = jwtService.generateToken(userId, role)
-        val claims = jwtService.validateToken(token)
+        val token = tokenService.generateAccessToken(userId, role)
+        val claims = tokenService.validateAccessToken(token)
 
         // then
         assertFalse { token.isEmpty() }

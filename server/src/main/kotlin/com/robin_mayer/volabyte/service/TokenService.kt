@@ -8,11 +8,11 @@ import java.util.Date
 import javax.crypto.SecretKey
 
 @Service
-class JwtService (
+class TokenService (
     private val key: SecretKey
 ) {
 
-    fun generateToken(userId: String, role: UserRole): String {
+    fun generateAccessToken(userId: String, role: UserRole): String {
         return Jwts
             .builder()
             .subject(userId)
@@ -23,7 +23,7 @@ class JwtService (
             .compact()
     }
 
-    fun validateToken(token: String): Claims? {
+    fun validateAccessToken(token: String): Claims? {
         return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).payload
     }
 }

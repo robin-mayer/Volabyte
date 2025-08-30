@@ -15,7 +15,7 @@ import java.util.Date
 @Service
 @Transactional
 class UserService (
-    private val jwtService: JwtService,
+    private val tokenService: TokenService,
     private val userRepository: UserRepository,
 ) {
 
@@ -34,7 +34,7 @@ class UserService (
         userRepository.save(user)
 
         return AuthDataDTO(
-            accessToken = jwtService.generateToken(user.id!!, user.role),
+            accessToken = tokenService.generateAccessToken(user.id!!, user.role),
         )
     }
 
