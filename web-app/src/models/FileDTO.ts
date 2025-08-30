@@ -1,9 +1,9 @@
 export interface FileDTO {
-  id: number;
+  id: string;
   name: string;
   isDirectory: boolean;
   referencedFile: string | null;
-  parentId: number | null;
+  parentId: string | null;
   ownerId: string;
   uploadedAt: Date;
 }

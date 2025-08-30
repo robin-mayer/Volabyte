@@ -9,7 +9,7 @@ import Request from "../core/Request";
 
 const FilesContainer: React.FC<{ accessToken: string }> = ({ accessToken }) => {
   const [breadcrumbs, setBreadcrumbs] = React.useState<Breadcrumb[]>([]);
-  const [parentId, setParentId] = React.useState<number | null>(null);
+  const [parentId, setParentId] = React.useState<string | null>(null);
   const [files, setFiles] = React.useState<FileDTO[]>([]);
   const [showSnackBar, setShowSnackbar] = React.useState<boolean>(false);
 

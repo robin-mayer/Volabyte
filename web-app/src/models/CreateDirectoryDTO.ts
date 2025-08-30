@@ -1,4 +1,4 @@
 export interface CreateDirectoryDTO {
-  parentId: number | null;
+  parentId: string | null;
   name: string;
 }
