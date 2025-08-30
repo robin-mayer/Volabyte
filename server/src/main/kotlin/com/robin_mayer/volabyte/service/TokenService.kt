@@ -18,7 +18,7 @@ class TokenService (
             .subject(userId)
             .claim("role", role)
             .issuedAt(Date())
-            .expiration(Date(System.currentTimeMillis() + 1000 * 60 * 10)) // 10 minutes
+            .expiration(Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
             .signWith(key)
             .compact()
     }
