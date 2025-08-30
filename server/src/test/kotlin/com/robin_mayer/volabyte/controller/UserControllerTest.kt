@@ -32,7 +32,7 @@ class UserControllerTest @Autowired constructor(
 
     @BeforeAll
     fun init() {
-        accessToken = tokenService.generateAccessToken("168bc3b2-5286-4572-a0a1-84f2d414f09c", UserRole.USER)
+        accessToken = tokenService.generateAccessToken("168bc3b2-5286-4572-a0a1-84f2d414f09c", UserRole.USER).first
     }
 
     private fun getHeadersWithAccessToken(): HttpHeaders {

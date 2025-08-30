@@ -18,7 +18,7 @@ class JwtServiceTest @Autowired constructor (
         val role = UserRole.USER
 
         // when
-        val token = tokenService.generateAccessToken(userId, role)
+        val token = tokenService.generateAccessToken(userId, role).first
         val claims = tokenService.validateAccessToken(token)
 
         // then

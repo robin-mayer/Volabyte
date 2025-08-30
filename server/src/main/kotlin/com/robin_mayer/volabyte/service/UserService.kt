@@ -34,7 +34,7 @@ class UserService (
         userRepository.save(user)
 
         return AuthDataDTO(
-            accessToken = tokenService.generateAccessToken(user.id!!, user.role),
+            accessToken = tokenService.generateAccessToken(user.id!!, user.role).first,
         )
     }
 
