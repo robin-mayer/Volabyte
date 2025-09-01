@@ -6,6 +6,7 @@ import java.util.Date
 
 interface SessionRepository: JpaRepository<Session, Long> {
     fun findByRefreshToken(refreshToken: String): Session?
+    fun findByUserIdAndDeviceId(userId: String, deviceId: String): Session?
     fun deleteAllByUserIdAndDeviceId(userId: String, deviceId: String)
     fun deleteAllByExpiresAtBefore(before: Date)
 }

@@ -37,11 +37,12 @@ class SecurityConfig (
             .httpBasic { it.disable() }
             .formLogin { it.disable() }
             .exceptionHandling {
-                it.authenticationEntryPoint { req, res, _ -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED) }
-                it.accessDeniedHandler { req, res, _ -> res.sendError(HttpServletResponse.SC_FORBIDDEN) }
+                it.authenticationEntryPoint { _, res, _ -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED) }
+                it.accessDeniedHandler { _, res, _ -> res.sendError(HttpServletResponse.SC_FORBIDDEN) }
             }
             .authorizeHttpRequests {
                 it.requestMatchers(HttpMethod.POST, "/users/login").permitAll()
+                it.requestMatchers(HttpMethod.POST, "/users/session/refresh").permitAll()
                 it.anyRequest().authenticated()
             }
             .addFilterBefore(

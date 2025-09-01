@@ -13,6 +13,7 @@ import java.util.Date
 class Session (
     val userId: String,
     @Column(unique = true)
+    @Suppress("unused")
     val deviceId: String,
     @Suppress("unused")
     val deviceName: String

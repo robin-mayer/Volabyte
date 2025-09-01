@@ -23,7 +23,6 @@ class SessionService (
     fun findByRefreshToken(refreshToken: String): Session {
         val session = sessionRepository.findByRefreshToken(refreshToken) ?: throw ApiException("Invalid refresh token", HttpStatus.UNAUTHORIZED)
         if(session.expiresAt.before(Date())) {
-            sessionRepository.delete(session)
             throw ApiException("Invalid refresh token", HttpStatus.UNAUTHORIZED)
         }
         return session
@@ -34,14 +33,18 @@ class SessionService (
     fun deleteByUserIdAndDeviceId(userId: String, deviceId: String) = sessionRepository.deleteAllByUserIdAndDeviceId(userId, deviceId)
 
     fun createSession(userId: String, deviceId: String, deviceName: String): Session {
-        sessionRepository.deleteAllByUserIdAndDeviceId(userId, deviceId)
-        return sessionRepository.save(
-            Session(
-                userId,
-                deviceId,
-                deviceName,
+        val existingSession = sessionRepository.findByUserIdAndDeviceId(userId, deviceId)
+        if(existingSession != null) {
+            return renewSession(existingSession)
+        } else {
+            return sessionRepository.save(
+                Session(
+                    userId,
+                    deviceId,
+                    deviceName,
+                )
             )
-        )
+        }
     }
 
     fun renewSession(session: Session): Session {
