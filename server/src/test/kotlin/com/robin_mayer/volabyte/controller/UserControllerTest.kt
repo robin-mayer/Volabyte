@@ -46,7 +46,9 @@ class UserControllerTest @Autowired constructor(
     fun loginUser() {
         val loginUserDTO = LoginUserDTO(
             userName = "bob",
-            password = "password"
+            password = "password",
+            "device-id",
+            "Device name"
         )
 
         val response = restTemplate.exchange(
@@ -64,7 +66,9 @@ class UserControllerTest @Autowired constructor(
     fun loginUser_InvalidUserName() {
         val loginUserDTO = LoginUserDTO(
             userName = "invalidUser",
-            password = "password"
+            password = "password",
+            "device-id",
+            "Device name"
         )
 
         val response = restTemplate.exchange(
@@ -82,7 +86,9 @@ class UserControllerTest @Autowired constructor(
     fun loginUser_InvalidPassword() {
         val loginUserDTO = LoginUserDTO(
             userName = "bob",
-            password = "wrongPassword"
+            password = "wrongPassword",
+            "device-id",
+            "Device name"
         )
 
         val response = restTemplate.exchange(

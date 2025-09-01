@@ -1,6 +1,8 @@
 package com.robin_mayer.volabyte.controller
 
 import com.robin_mayer.volabyte.dto.request.LoginUserDTO
+import com.robin_mayer.volabyte.dto.request.LogoutUserDTO
+import com.robin_mayer.volabyte.dto.request.UserSessionRefreshDTO
 import com.robin_mayer.volabyte.dto.response.AuthDataDTO
 import com.robin_mayer.volabyte.dto.response.UserDTO
 import com.robin_mayer.volabyte.service.UserService
@@ -23,6 +25,23 @@ class UserController (
     ): ResponseEntity<AuthDataDTO> {
         val authData = userService.login(loginUserDTO)
         return ResponseEntity(authData, HttpStatus.OK)
+    }
+
+    @PostMapping("/users/session/refresh")
+    fun refreshToken(
+        @RequestBody refreshToken: UserSessionRefreshDTO
+    ): ResponseEntity<AuthDataDTO> {
+        val authData = userService.refreshUserSession(refreshToken.refreshToken)
+        return ResponseEntity(authData, HttpStatus.OK)
+    }
+
+    @PostMapping("/users/logout")
+    fun logout(
+        authentication: Authentication,
+        @RequestBody logoutUserDTO: LogoutUserDTO
+    ): ResponseEntity<Void> {
+        userService.logout(authentication.name, logoutUserDTO.deviceId)
+        return ResponseEntity(null, HttpStatus.NO_CONTENT)
     }
 
     @GetMapping("/users/self")

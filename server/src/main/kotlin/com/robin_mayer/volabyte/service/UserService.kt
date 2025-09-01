@@ -2,11 +2,9 @@ package com.robin_mayer.volabyte.service
 
 import com.robin_mayer.volabyte.dto.request.LoginUserDTO
 import com.robin_mayer.volabyte.dto.response.AuthDataDTO
-import com.robin_mayer.volabyte.entity.Session
 import com.robin_mayer.volabyte.entity.User
 import com.robin_mayer.volabyte.enums.UserRole
 import com.robin_mayer.volabyte.exception.ApiException
-import com.robin_mayer.volabyte.repository.SessionRepository
 import com.robin_mayer.volabyte.repository.UserRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
@@ -20,7 +18,7 @@ import java.util.Date
 class UserService (
     private val tokenService: TokenService,
     private val userRepository: UserRepository,
-    private val sessionRepository: SessionRepository
+    private val sessionService: SessionService
 ) {
 
     @Value("\${user.password.hash.salt}")
@@ -38,13 +36,7 @@ class UserService (
         userRepository.save(user)
 
         val accessTokenPair = tokenService.generateAccessToken(user.id!!, user.role)
-        val session = sessionRepository.save(
-            Session(
-                userId = user.id!!,
-                deviceId = input.deviceId,
-                deviceName = input.deviceName,
-            )
-        )
+        val session = sessionService.createSession(user.id!!, input.deviceId, input.deviceName)
 
         return AuthDataDTO(
             accessToken = accessTokenPair.first,
@@ -52,6 +44,31 @@ class UserService (
             refreshToken = session.refreshToken,
             refreshTokenExpiresAt = session.expiresAt,
         )
+    }
+
+    fun refreshUserSession(refreshToken: String): AuthDataDTO {
+        val session = sessionService.findByRefreshToken(refreshToken)
+
+        val userOptional = userRepository.findById(session.userId)
+        if(userOptional.isEmpty) {
+            sessionService.deleteById(session.id!!)
+            throw ApiException("Invalid refresh token", HttpStatus.UNAUTHORIZED)
+        }
+
+        val user = userOptional.get()
+        val accessTokenPair = tokenService.generateAccessToken(user.id!!, user.role)
+        val renewedSession = sessionService.renewSession(session)
+
+        return AuthDataDTO(
+            accessToken = accessTokenPair.first,
+            accessTokenExpiresAt = accessTokenPair.second,
+            refreshToken = renewedSession.refreshToken,
+            refreshTokenExpiresAt = renewedSession.expiresAt,
+        )
+    }
+
+    fun logout(userId: String, deviceId: String) {
+        sessionService.deleteByUserIdAndDeviceId(userId, deviceId)
     }
 
     fun createUser(

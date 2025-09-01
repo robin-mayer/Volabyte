@@ -1,5 +1,6 @@
 package com.robin_mayer.volabyte.entity
 
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -11,6 +12,7 @@ import java.util.Date
 @Table(name = "sessions")
 class Session (
     val userId: String,
+    @Column(unique = true)
     val deviceId: String,
     @Suppress("unused")
     val deviceName: String
@@ -18,10 +20,16 @@ class Session (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
-    val refreshToken: String = (1..64)
+    @Column(unique = true)
+    var refreshToken: String = (1..128)
         .map { "\"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".random() }
         .joinToString("")
-    val expiresAt = Date(
-        System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7
-    ) // 7 days
+    var expiresAt = Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7) // 7 days
+
+    fun resetSession() {
+        refreshToken = (1..128)
+            .map { "\"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".random() }
+            .joinToString("")
+        expiresAt = Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7) // 7 days
+    }
 }
