@@ -13,7 +13,7 @@ class TokenService (
 ) {
 
     fun generateAccessToken(userId: String, role: UserRole): Pair<String, Date> {
-        val expiration = Date(System.currentTimeMillis() + 1000 * 60 * 60) // 1 hour
+        val expiration = Date(System.currentTimeMillis() + 1000 * 60 * 10) // 10 minutes
         val accessToken = Jwts
             .builder()
             .subject(userId)

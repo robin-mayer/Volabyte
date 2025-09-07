@@ -24,17 +24,12 @@ class LocalStorage {
     }
   }
 
-  persistRefreshToken(authUser: AuthUser | null) {
-    if (authUser) {
-      const refreshTokenData: RefreshTokenData = {
-        refreshToken: authUser.refreshToken,
-        refreshTokenExpiresAt: authUser.refreshTokenExpiresAt,
-      };
-      localStorage.setItem(
-        "refreshTokenData",
-        JSON.stringify(refreshTokenData)
-      );
-    }
+  persistRefreshToken(authUser: AuthUser) {
+    const refreshTokenData: RefreshTokenData = {
+      refreshToken: authUser.refreshToken,
+      refreshTokenExpiresAt: authUser.refreshTokenExpiresAt,
+    };
+    localStorage.setItem("refreshTokenData", JSON.stringify(refreshTokenData));
   }
 
   deleteRefreshToken() {

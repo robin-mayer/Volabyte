@@ -40,6 +40,35 @@ class AuthUserImpl {
     return authUser;
   }
 
+  async refresh(refreshToken: string): Promise<AuthUser | null> {
+    const refreshResponse = await Request.post("/users/session/refresh", null, {
+      refreshToken: refreshToken,
+    });
+    if (!refreshResponse.ok) {
+      LocalStorage.deleteRefreshToken();
+      return null;
+    }
+    const authData: AuthDataDTO = await refreshResponse.json();
+
+    const userResponse = await Request.get("/users/self", authData.accessToken);
+    if (!userResponse.ok) {
+      return null;
+    }
+    const user: UserDTO = await userResponse.json();
+
+    const authUser: AuthUser = {
+      accessToken: authData.accessToken,
+      accessTokenExpiresAt: authData.accessTokenExpiresAt,
+      refreshToken: authData.refreshToken,
+      refreshTokenExpiresAt: authData.refreshTokenExpiresAt,
+      id: user.id,
+      userName: user.userName,
+      displayName: user.displayName,
+      role: user.role,
+    };
+    return authUser;
+  }
+
   async logout(accessToken: string): Promise<boolean> {
     const response = await Request.post("/users/logout", accessToken, {
       deviceId: LocalStorage.getDeviceId(),

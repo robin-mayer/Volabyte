@@ -14,7 +14,20 @@ function App() {
   const [authUser, setAuthUser] = React.useState<AuthUser | null>(null);
 
   React.useEffect(() => {
-    LocalStorage.persistRefreshToken(authUser);
+    if (authUser) {
+      LocalStorage.persistRefreshToken(authUser);
+
+      const timeUntilExpiry =
+        new Date(authUser.accessTokenExpiresAt).getTime() -
+        new Date().getTime();
+      setTimeout(() => {
+        AuthUserImpl.refresh(authUser.refreshToken).then(
+          (refreshedAuthUser) => {
+            setAuthUser(refreshedAuthUser);
+          }
+        );
+      }, timeUntilExpiry - 60000); // refresh 1 minute before expiry
+    }
   }, [authUser]);
 
   React.useEffect(() => {
