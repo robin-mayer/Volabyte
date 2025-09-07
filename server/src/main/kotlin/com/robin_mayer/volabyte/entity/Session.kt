@@ -23,13 +23,13 @@ class Session (
     var id: Long? = null
     @Column(unique = true)
     var refreshToken: String = (1..128)
-        .map { "\"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".random() }
+        .map { "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".random() }
         .joinToString("")
     var expiresAt = Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7) // 7 days
 
     fun resetSession() {
         refreshToken = (1..128)
-            .map { "\"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".random() }
+            .map { "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".random() }
             .joinToString("")
         expiresAt = Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7) // 7 days
     }

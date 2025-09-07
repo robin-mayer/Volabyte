@@ -1,55 +1,84 @@
-import { useEffect, useState } from "react";
+import React from "react";
 import type { AuthUser } from "./models/AuthUser";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import DashboardPage from "./pages/DashboardPage";
 import LoginPage from "./pages/LoginPage";
 import LocalStorage from "./core/LocalStorage";
 import FilesContainer from "./container/FilesContainer";
+import { Box } from "@mui/material";
+import LoadingSpinner from "./components/LoadingSpinner";
+import AuthUserImpl from "./core/AuthUserImpl";
 
 function App() {
-  const [authUser, setAuthUser] = useState<AuthUser | null>(
-    LocalStorage.getInitialAuthUser()
-  );
+  const [loading, setLoading] = React.useState(true);
+  const [authUser, setAuthUser] = React.useState<AuthUser | null>(null);
 
-  useEffect(() => {
-    LocalStorage.persistAuthUser(authUser);
+  React.useEffect(() => {
+    LocalStorage.persistRefreshToken(authUser);
   }, [authUser]);
 
+  React.useEffect(() => {
+    AuthUserImpl.initialize().then((authUser) => {
+      setAuthUser(authUser);
+      setLoading(false);
+    });
+  }, []);
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/login"
-          element={
-            authUser ? (
-              <Navigate to="/" />
-            ) : (
-              <LoginPage setAuthUser={setAuthUser} />
-            )
-          }
-        />
-        {authUser ? (
+    <React.Fragment>
+      {loading && (
+        <Box
+          sx={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "#ffffffff",
+            zIndex: 100,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <LoadingSpinner />
+        </Box>
+      )}
+      <BrowserRouter>
+        <Routes>
           <Route
-            path="/"
+            path="/login"
             element={
-              <DashboardPage authUser={authUser} setAuthUser={setAuthUser} />
+              authUser ? (
+                <Navigate to="/" />
+              ) : (
+                <LoginPage setAuthUser={setAuthUser} />
+              )
             }
-          >
-            <Route index element={<Navigate to="files" replace />} />
+          />
+          {authUser ? (
             <Route
-              path="files"
-              element={<FilesContainer accessToken={authUser?.accessToken} />}
-            />
-          </Route>
-        ) : (
-          <Route path="/" element={<Navigate to="/login" replace />} />
-        )}
-        <Route
-          path="*"
-          element={<Navigate to={authUser ? "/" : "/login"} replace />}
-        />
-      </Routes>
-    </BrowserRouter>
+              path="/"
+              element={
+                <DashboardPage authUser={authUser} setAuthUser={setAuthUser} />
+              }
+            >
+              <Route index element={<Navigate to="files" replace />} />
+              <Route
+                path="files"
+                element={<FilesContainer accessToken={authUser?.accessToken} />}
+              />
+            </Route>
+          ) : (
+            <Route path="/" element={<Navigate to="/login" replace />} />
+          )}
+          <Route
+            path="*"
+            element={<Navigate to={authUser ? "/" : "/login"} replace />}
+          />
+        </Routes>
+      </BrowserRouter>
+    </React.Fragment>
   );
 }
 
