@@ -1,5 +1,6 @@
 package com.robin_mayer.volabyte.service
 
+import com.robin_mayer.volabyte.dto.request.LoginUserDTO
 import com.robin_mayer.volabyte.dto.response.AuthDataDTO
 import com.robin_mayer.volabyte.entity.User
 import com.robin_mayer.volabyte.enums.UserRole
@@ -15,27 +16,59 @@ import java.util.Date
 @Service
 @Transactional
 class UserService (
-    private val jwtService: JwtService,
+    private val tokenService: TokenService,
     private val userRepository: UserRepository,
+    private val sessionService: SessionService
 ) {
 
     @Value("\${user.password.hash.salt}")
     val passwordHashSalt: String? = null
     private val passwordEncoder = BCryptPasswordEncoder()
 
-    fun login(userName: String, password: String): AuthDataDTO {
-        val user = userRepository.findByUserName(userName) ?: throw ApiException("Invalid credentials", HttpStatus.UNAUTHORIZED)
+    fun login(input: LoginUserDTO): AuthDataDTO {
+        val user = userRepository.findByUserName(input.userName) ?: throw ApiException("Invalid credentials", HttpStatus.UNAUTHORIZED)
 
-        if (!passwordEncoder.matches(password + passwordHashSalt, user.password)) {
+        if (!passwordEncoder.matches(input.password + passwordHashSalt, user.password)) {
             throw ApiException("Invalid credentials", HttpStatus.UNAUTHORIZED)
         }
 
         user.lastLoginAt = Date()
         userRepository.save(user)
 
+        val accessTokenPair = tokenService.generateAccessToken(user.id!!, user.role)
+        val session = sessionService.createSession(user.id!!, input.deviceId, input.deviceName)
+
         return AuthDataDTO(
-            accessToken = jwtService.generateToken(user.id!!, user.role),
+            accessToken = accessTokenPair.first,
+            accessTokenExpiresAt = accessTokenPair.second,
+            refreshToken = session.refreshToken,
+            refreshTokenExpiresAt = session.expiresAt,
         )
+    }
+
+    fun refreshUserSession(refreshToken: String): AuthDataDTO {
+        val session = sessionService.findByRefreshToken(refreshToken)
+
+        val userOptional = userRepository.findById(session.userId)
+        if(userOptional.isEmpty) {
+            sessionService.deleteById(session.id!!)
+            throw ApiException("Invalid refresh token", HttpStatus.UNAUTHORIZED)
+        }
+
+        val user = userOptional.get()
+        val accessTokenPair = tokenService.generateAccessToken(user.id!!, user.role)
+        val renewedSession = sessionService.renewSession(session)
+
+        return AuthDataDTO(
+            accessToken = accessTokenPair.first,
+            accessTokenExpiresAt = accessTokenPair.second,
+            refreshToken = renewedSession.refreshToken,
+            refreshTokenExpiresAt = renewedSession.expiresAt,
+        )
+    }
+
+    fun logout(userId: String, deviceId: String) {
+        sessionService.deleteByUserIdAndDeviceId(userId, deviceId)
     }
 
     fun createUser(
@@ -64,6 +97,11 @@ class UserService (
     }
 
     fun getUser(id: String): User {
-        return userRepository.findById(id) ?: throw ApiException("User not found", HttpStatus.NOT_FOUND)
+        val user = userRepository.findById(id)
+        if(user.isPresent) {
+            return user.get()
+        } else {
+            throw ApiException("User not found", HttpStatus.NOT_FOUND)
+        }
     }
 }

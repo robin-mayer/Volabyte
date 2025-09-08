@@ -4,6 +4,7 @@ import Request from "../core/Request";
 import type { LoginUserDTO } from "../models/LoginUserDTO";
 import type { AuthDataDTO } from "../models/AuthDataDTO";
 import type { UserDTO } from "../models/UserDTO";
+import LocalStorage from "../core/LocalStorage";
 
 const LoginPage: React.FC<{ setAuthUser: any }> = ({ setAuthUser }) => {
   const [userNameInput, setUserNameInput] = useState<string>("");
@@ -24,6 +25,8 @@ const LoginPage: React.FC<{ setAuthUser: any }> = ({ setAuthUser }) => {
     const loginData: LoginUserDTO = {
       userName: userNameInput,
       password: passwordInput,
+      deviceId: LocalStorage.getDeviceId(),
+      deviceName: navigator.userAgent,
     };
 
     const response = await Request.post("/users/login", null, loginData);
@@ -37,6 +40,9 @@ const LoginPage: React.FC<{ setAuthUser: any }> = ({ setAuthUser }) => {
         const user: UserDTO = await selfResponse.json();
         setAuthUser({
           accessToken: authData.accessToken,
+          accessTokenExpiresAt: authData.accessTokenExpiresAt,
+          refreshToken: authData.refreshToken,
+          refreshTokenExpiresAt: authData.refreshTokenExpiresAt,
           id: user.id,
           userName: user.userName,
           displayName: user.displayName,

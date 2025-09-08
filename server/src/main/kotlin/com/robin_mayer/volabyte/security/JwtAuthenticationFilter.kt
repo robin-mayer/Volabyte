@@ -1,6 +1,6 @@
 package com.robin_mayer.volabyte.security
 
-import com.robin_mayer.volabyte.service.JwtService
+import com.robin_mayer.volabyte.service.TokenService
 import io.jsonwebtoken.JwtException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -13,7 +13,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
 class JwtAuthenticationFilter (
-    private val jwtService: JwtService
+    private val tokenService: TokenService
 ) : OncePerRequestFilter() {
 
     override fun doFilterInternal(
@@ -29,7 +29,7 @@ class JwtAuthenticationFilter (
 
         val token = authHeader.substring(7)
         try {
-            val claims = jwtService.validateToken(token)
+            val claims = tokenService.validateAccessToken(token)
             val userId = claims?.subject ?: return
 
             val auth = UsernamePasswordAuthenticationToken(userId, null, emptyList())

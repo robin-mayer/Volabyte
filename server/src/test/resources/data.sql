@@ -9,6 +9,14 @@ values (
         'bob'
        );
 
+insert into sessions (user_id, device_id, device_name, refresh_token, expires_at)
+values (
+        '168bc3b2-5286-4572-a0a1-84f2d414f09c',
+        'device-id',
+        'Unit Test Device',
+        'expired_refresh_token',
+        '2000-01-01 00:00:00.000000'
+       );
 
 insert into files (id, name, is_directory, referenced_file, parent_id, owner_id, uploaded_at)
 values ('d0bbdf22-60d3-4362-a32e-e275cd12aa86', 'Directory', true, null, null, '168bc3b2-5286-4572-a0a1-84f2d414f09c', '2025-07-21 14:30:45.000000');

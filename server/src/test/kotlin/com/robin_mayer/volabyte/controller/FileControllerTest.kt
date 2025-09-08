@@ -32,7 +32,7 @@ class FileControllerTest {
         val response = restTemplate.exchange(
             "/users/login",
             HttpMethod.POST,
-            HttpEntity(LoginUserDTO("bob", "password")),
+            HttpEntity(LoginUserDTO("bob", "password", "device-id", "Device name")),
             AuthDataDTO::class.java
         )
 

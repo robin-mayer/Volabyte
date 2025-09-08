@@ -28,8 +28,8 @@ class FileController (
 
     @PostMapping("/files/directories")
     fun createDirectory(
-        @RequestBody createDirectoryDTO: CreateDirectoryDTO,
-        authentication: Authentication
+        authentication: Authentication,
+        @RequestBody createDirectoryDTO: CreateDirectoryDTO
     ): ResponseEntity<FileDTO> {
         val createdDirectory = fileService.createDirectory(createDirectoryDTO, authentication)
         return ResponseEntity(createdDirectory.toDTO(), HttpStatus.CREATED)

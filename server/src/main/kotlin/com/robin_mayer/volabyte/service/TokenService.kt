@@ -8,22 +8,24 @@ import java.util.Date
 import javax.crypto.SecretKey
 
 @Service
-class JwtService (
+class TokenService (
     private val key: SecretKey
 ) {
 
-    fun generateToken(userId: String, role: UserRole): String {
-        return Jwts
+    fun generateAccessToken(userId: String, role: UserRole): Pair<String, Date> {
+        val expiration = Date(System.currentTimeMillis() + 1000 * 60 * 10) // 10 minutes
+        val accessToken = Jwts
             .builder()
             .subject(userId)
             .claim("role", role)
             .issuedAt(Date())
-            .expiration(Date(System.currentTimeMillis() + 1000 * 60 * 10)) // 10 minutes
+            .expiration(expiration)
             .signWith(key)
             .compact()
+        return Pair(accessToken, expiration)
     }
 
-    fun validateToken(token: String): Claims? {
+    fun validateAccessToken(token: String): Claims? {
         return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).payload
     }
 }
