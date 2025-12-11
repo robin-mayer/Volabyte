@@ -1,17 +1,12 @@
 class Request {
-  private readonly baseUrl: string;
+  private readonly baseURL: string;
 
-  constructor() {
-    const originUrl = window.location.origin;
-    if (originUrl === "http://localhost:5173") {
-      this.baseUrl = "http://localhost:8080";
-    } else {
-      this.baseUrl = `${originUrl}/api`;
-    }
+  constructor(baseURL: string) {
+    this.baseURL = baseURL;
   }
 
   private getRequestUrl(path: string): string {
-    return `${this.baseUrl}${path}`;
+    return `${this.baseURL}${path}`;
   }
 
   async get(path: string, token: string | null): Promise<Response> {
@@ -82,4 +77,4 @@ class Request {
   }
 }
 
-export default new Request();
+export default new Request(import.meta.env.VITE_SERVER_URL);

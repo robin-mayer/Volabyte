@@ -1,4 +1,4 @@
-package com.robin_mayer.volabyte.components
+package com.robin_mayer.volabyte.component
 
 import com.robin_mayer.volabyte.enums.UserRole
 import com.robin_mayer.volabyte.service.UserService
