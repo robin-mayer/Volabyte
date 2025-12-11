@@ -39,10 +39,11 @@ class UserService (
         val session = sessionService.createSession(user.id!!, input.deviceId, input.deviceName)
 
         return AuthDataDTO(
-            accessToken = accessTokenPair.first,
-            accessTokenExpiresAt = accessTokenPair.second,
-            refreshToken = session.refreshToken,
-            refreshTokenExpiresAt = session.expiresAt,
+            accessTokenPair.first,
+            accessTokenPair.second,
+            session.refreshToken,
+            session.expiresAt,
+            user.role
         )
     }
 
@@ -63,10 +64,11 @@ class UserService (
         val renewedSession = sessionService.renewSession(session)
 
         return AuthDataDTO(
-            accessToken = accessTokenPair.first,
-            accessTokenExpiresAt = accessTokenPair.second,
-            refreshToken = renewedSession.refreshToken,
-            refreshTokenExpiresAt = renewedSession.expiresAt,
+            accessTokenPair.first,
+            accessTokenPair.second,
+            renewedSession.refreshToken,
+            renewedSession.expiresAt,
+            user.role
         )
     }
 
@@ -86,10 +88,10 @@ class UserService (
 
         val hashedPassword = passwordEncoder.encode(password + passwordHashSalt)
         val user = User(
-            userName = userName.lowercase(),
-            displayName = displayName,
-            password = hashedPassword,
-            role = role
+            userName.lowercase(),
+            displayName,
+            hashedPassword,
+            role
         )
 
         return userRepository.save(user)
@@ -98,10 +100,10 @@ class UserService (
     fun createInitialAdmin() {
         if(userRepository.count() == 0L) {
             createUser(
-                userName = "admin",
-                displayName = "Admin",
-                password = "admin",
-                role = UserRole.ADMIN
+                "admin",
+                "Admin",
+                "admin",
+                UserRole.ADMIN
             )
         }
     }
