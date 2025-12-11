@@ -28,7 +28,7 @@ class UserController (
     }
 
     @PostMapping("/users/session/refresh")
-    fun refreshToken(
+    fun refreshSession(
         @RequestBody userSessionRefreshDTO: UserSessionRefreshDTO
     ): ResponseEntity<AuthDataDTO> {
         val authData = userService.refreshUserSession(userSessionRefreshDTO.refreshToken)
@@ -50,5 +50,11 @@ class UserController (
     ): ResponseEntity<UserDTO> {
         val user = userService.getUser(authentication.name)
         return ResponseEntity(user.toDTO(), HttpStatus.OK)
+    }
+
+    @PostMapping("/users")
+    fun create(): ResponseEntity<UserDTO> {
+        // not implemented yet
+        return ResponseEntity(null, HttpStatus.NOT_IMPLEMENTED)
     }
 }
