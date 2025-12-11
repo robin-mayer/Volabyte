@@ -56,6 +56,9 @@ class UserService (
         }
 
         val user = userOptional.get()
+        user.lastLoginAt = Date()
+        userRepository.save(user)
+
         val accessTokenPair = tokenService.generateAccessToken(user.id!!, user.role)
         val renewedSession = sessionService.renewSession(session)
 
