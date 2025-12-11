@@ -7,6 +7,15 @@ values (
         '$2a$10$id00o4644XlZD3MUT/TCO.NNb71aQK/oTfRPaIcNxPDwCVBpCofOy',
         'USER',
         'bob'
+       ),
+       (
+           'e7a7b754-6648-45bd-8e2e-e8afcac887b8',
+           '2025-07-23 12:30:45.000000',
+           'Admin',
+           '2025-07-24 12:30:45.000000',
+           '$2a$10$id00o4644XlZD3MUT/TCO.NNb71aQK/oTfRPaIcNxPDwCVBpCofOy',
+           'ADMIN',
+           'admin'
        );
 
 insert into sessions (user_id, device_id, device_name, refresh_token, expires_at)
