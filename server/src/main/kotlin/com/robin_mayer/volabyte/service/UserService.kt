@@ -80,7 +80,7 @@ class UserService (
         password: String,
         role: UserRole,
     ): User {
-        if (doesUserNameExist(userName)) {
+        if (userRepository.existsByUserName(userName)) {
             throw ApiException("Username already exists", HttpStatus.BAD_REQUEST)
         }
 
@@ -95,8 +95,15 @@ class UserService (
         return userRepository.save(user)
     }
 
-    fun doesUserNameExist(userName: String): Boolean {
-        return userRepository.existsByUserName(userName)
+    fun createInitialAdmin() {
+        if(userRepository.count() == 0L) {
+            createUser(
+                userName = "admin",
+                displayName = "Admin",
+                password = "admin",
+                role = UserRole.ADMIN
+            )
+        }
     }
 
     fun getUser(id: String): User {

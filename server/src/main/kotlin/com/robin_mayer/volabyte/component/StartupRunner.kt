@@ -1,6 +1,5 @@
 package com.robin_mayer.volabyte.component
 
-import com.robin_mayer.volabyte.enums.UserRole
 import com.robin_mayer.volabyte.service.UserService
 import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component
@@ -15,13 +14,6 @@ class StartupRunner (
     }
 
     private fun generateInitialAdmin() {
-        if (!userService.doesUserNameExist("admin")) {
-            userService.createUser(
-                userName = "admin",
-                displayName = "Admin",
-                password = "admin",
-                role = UserRole.ADMIN
-            )
-        }
+        userService.createInitialAdmin()
     }
 }

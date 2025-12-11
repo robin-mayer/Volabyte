@@ -28,7 +28,6 @@ class UserServiceTest @Autowired constructor(
         val user = userService.createUser(userName, displayName, password, role)
 
         // then
-        assertTrue(userService.doesUserNameExist("testuser"))
         assertEquals("testuser", user.userName)
         assertEquals("Test User", user.displayName)
         assertEquals(UserRole.USER, user.role)
