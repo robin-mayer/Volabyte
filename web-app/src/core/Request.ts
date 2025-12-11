@@ -1,5 +1,7 @@
 class Request {
-  constructor(private readonly baseURL: string) {
+  private readonly baseURL: string;
+
+  constructor(baseURL: string) {
     this.baseURL = baseURL;
   }
 
