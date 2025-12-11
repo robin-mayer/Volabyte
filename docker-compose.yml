@@ -1,0 +1,41 @@
+name: volabyte
+
+services:
+  postgres:
+    container_name: volabyte_postgres
+    image: postgres:18
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: volabyte
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  server:
+    container_name: volabyte_server
+    image: robinmayer/volabyte-server:${VERSION}
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DB_HOST: postgres
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_JACKSON_TIME_ZONE: ${TZ}
+      FRONTEND_URL: ${WEB_URL}
+      USER_PASSWORD_HASH_SALT: ${PASSWORD_SALT}
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+  web:
+    container_name: volabyte_web
+    image: robinmayer/volabyte-web:${VERSION}
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      SERVER_URL: ${SERVER_URL}
+    depends_on:
+      - server
+    ports:
+      - "80:80"
