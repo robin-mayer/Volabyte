@@ -1,5 +1,6 @@
 package com.robin_mayer.volabyte.controller
 
+import com.robin_mayer.volabyte.dto.request.CreateUserDTO
 import com.robin_mayer.volabyte.dto.request.LoginUserDTO
 import com.robin_mayer.volabyte.dto.request.LogoutUserDTO
 import com.robin_mayer.volabyte.dto.request.UserSessionRefreshDTO
@@ -53,8 +54,15 @@ class UserController (
     }
 
     @PostMapping("/users")
-    fun create(): ResponseEntity<UserDTO> {
-        // not implemented yet
-        return ResponseEntity(null, HttpStatus.NOT_IMPLEMENTED)
+    fun create(
+        @RequestBody createUserDTO: CreateUserDTO
+    ): ResponseEntity<UserDTO> {
+        val newUser = userService.createUser(
+            createUserDTO.userName,
+            createUserDTO.displayName,
+            createUserDTO.password,
+            createUserDTO.role
+        )
+        return ResponseEntity(newUser.toDTO(), HttpStatus.CREATED)
     }
 }
