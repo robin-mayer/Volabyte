@@ -77,4 +77,4 @@ class Request {
   }
 }
 
-export default new Request(import.meta.env.VITE_SERVER_URL);
+export default new Request(window.__APP_CONFIG__.SERVER_URL);
