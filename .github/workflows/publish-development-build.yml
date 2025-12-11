@@ -17,14 +17,14 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build the server image
-        id: push
+        id: build-push-server
         uses: docker/build-push-action@v6
         with:
           context: server
           push: true
           tags: robinmayer/volabyte-server:development
       - name: Build the web app image
-        id: push
+        id: build-push-web-app
         uses: docker/build-push-action@v6
         with:
           context: web-app
