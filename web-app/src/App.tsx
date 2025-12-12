@@ -8,6 +8,7 @@ import FilesContainer from "./container/FilesContainer";
 import { Box } from "@mui/material";
 import LoadingSpinner from "./components/LoadingSpinner";
 import AuthUserImpl from "./core/AuthUserImpl";
+import SettingsContainer from "./container/SettingsContainer";
 
 function App() {
   const [loading, setLoading] = React.useState(true);
@@ -80,6 +81,12 @@ function App() {
               <Route
                 path="files"
                 element={<FilesContainer accessToken={authUser?.accessToken} />}
+              />
+              <Route
+                path="settings"
+                element={
+                  <SettingsContainer accessToken={authUser?.accessToken} />
+                }
               />
             </Route>
           ) : (

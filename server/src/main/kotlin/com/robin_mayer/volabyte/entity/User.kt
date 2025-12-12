@@ -28,14 +28,15 @@ class User (
     var id: String? = null
     @Suppress("unused")
     val createdAt = Date()
-    var lastLoginAt = Date()
+    var lastLoginAt: Date? = null
 
     fun toDTO(): UserDTO {
         return UserDTO(
-            id = id!!,
-            userName = userName,
-            displayName = displayName,
-            role = role
+            id!!,
+            userName,
+            displayName,
+            role,
+            lastLoginAt
         )
     }
 }

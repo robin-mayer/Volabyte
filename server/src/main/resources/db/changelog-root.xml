@@ -8,5 +8,6 @@
     <include file="db/changelog/001-#007.sql" />
     <include file="db/changelog/002-#031.sql" />
     <include file="db/changelog/003-#039.sql" />
+    <include file="db/changelog/004-#008.sql" />
     <include file="db/changelog/005-#051.sql" />
 </databaseChangeLog>
