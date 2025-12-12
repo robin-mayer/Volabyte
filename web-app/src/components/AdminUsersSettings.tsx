@@ -41,7 +41,6 @@ const AdminUsersSettings: React.FC<{ accessToken: string }> = ({
     password: string,
     role: UserRole
   ) => {
-    console.log("Creating user:", { userName, displayName, password, role });
     const createUserDTO: CreateUserDTO = {
       userName,
       displayName,
@@ -51,7 +50,10 @@ const AdminUsersSettings: React.FC<{ accessToken: string }> = ({
     const response = await Request.post("/users", accessToken, createUserDTO);
     if (response.status === 201) {
       const createdUser: UserDTO = await response.json();
-      setUsers((prevUsers) => [...prevUsers, createdUser]);
+      const updatedUsers = [...users, createdUser].sort((a, b) =>
+        a.userName.localeCompare(b.userName)
+      );
+      setUsers(updatedUsers);
       setOpenCreateUserDialog(false);
     } else {
       // todo show snackbar
