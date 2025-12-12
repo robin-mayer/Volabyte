@@ -306,6 +306,40 @@ class UserControllerTest {
 
     @Test
     @Order(14)
+    fun getUsers_Unauthorized() {
+        // when
+        val response = restTemplate.exchange(
+            "/users",
+            HttpMethod.GET,
+            HttpEntity(null, null),
+            Void::class.java
+        )
+
+        // then
+        assertEquals(HttpStatus.UNAUTHORIZED, response.statusCode)
+    }
+
+    @Test
+    @Order(15)
+    fun getUsers_AsUser() {
+        // given
+        val headers = HttpHeaders()
+        headers.setBearerAuth(validAccessToken!!)
+
+        // when
+        val response = restTemplate.exchange(
+            "/users",
+            HttpMethod.GET,
+            HttpEntity(null, headers),
+            Void::class.java
+        )
+
+        // then
+        assertEquals(HttpStatus.UNAUTHORIZED, response.statusCode)
+    }
+
+    @Test
+    @Order(16)
     fun createUser_AsUser() {
         //given
         val headers = HttpHeaders()
@@ -330,7 +364,7 @@ class UserControllerTest {
     }
 
     @Test
-    @Order(15)
+    @Order(17)
     fun loginAsAdmin() {
         // given
         val loginUserDTO = LoginUserDTO(
@@ -356,7 +390,29 @@ class UserControllerTest {
     }
 
     @Test
-    @Order(16)
+    @Order(18)
+    fun getUsers_AsAdmin() {
+        // given
+        val headers = HttpHeaders()
+        headers.setBearerAuth(validAccessToken!!)
+
+        // when
+        val response = restTemplate.exchange(
+            "/users",
+            HttpMethod.GET,
+            HttpEntity(null, headers),
+            Array<UserDTO>::class.java
+        )
+
+        // then
+        assertEquals(HttpStatus.OK, response.statusCode)
+        assertEquals(2, response.body!!.size)
+        assertEquals("admin", response.body!![0].userName)
+        assertEquals("bob", response.body!![1].userName)
+    }
+
+    @Test
+    @Order(19)
     fun createUser_AsAdmin() {
         //given
         val headers = HttpHeaders()

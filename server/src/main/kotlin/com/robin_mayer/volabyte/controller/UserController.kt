@@ -53,6 +53,12 @@ class UserController (
         return ResponseEntity(user.toDTO(), HttpStatus.OK)
     }
 
+    @GetMapping("/users")
+    fun getAllUsers(): ResponseEntity<List<UserDTO>> {
+        val users = userService.getAllUsers()
+        return ResponseEntity(users.map { it.toDTO() }, HttpStatus.OK)
+    }
+
     @PostMapping("/users")
     fun create(
         @RequestBody createUserDTO: CreateUserDTO

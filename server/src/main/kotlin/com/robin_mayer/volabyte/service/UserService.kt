@@ -7,6 +7,7 @@ import com.robin_mayer.volabyte.enums.UserRole
 import com.robin_mayer.volabyte.exception.ApiException
 import com.robin_mayer.volabyte.repository.UserRepository
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
@@ -24,6 +25,17 @@ class UserService (
     @Value("\${user.password.hash.salt}")
     val passwordHashSalt: String? = null
     private val passwordEncoder = BCryptPasswordEncoder()
+
+    fun createInitialAdmin() {
+        if(userRepository.count() == 0L) {
+            createUser(
+                "admin",
+                "Admin",
+                "admin",
+                UserRole.ADMIN
+            )
+        }
+    }
 
     fun login(input: LoginUserDTO): AuthDataDTO {
         val user = userRepository.findByUserName(input.userName) ?: throw ApiException("Invalid credentials", HttpStatus.UNAUTHORIZED)
@@ -74,6 +86,19 @@ class UserService (
         sessionService.deleteByUserIdAndDeviceId(userId, deviceId)
     }
 
+    fun getUser(id: String): User {
+        val user = userRepository.findById(id)
+        if(user.isPresent) {
+            return user.get()
+        } else {
+            throw ApiException("User not found", HttpStatus.NOT_FOUND)
+        }
+    }
+
+    fun getAllUsers(): List<User> {
+        return userRepository.findAll(Sort.by("userName").ascending())
+    }
+
     fun createUser(
         userName: String,
         displayName: String,
@@ -93,25 +118,5 @@ class UserService (
         )
 
         return userRepository.save(user)
-    }
-
-    fun createInitialAdmin() {
-        if(userRepository.count() == 0L) {
-            createUser(
-                "admin",
-                "Admin",
-                "admin",
-                UserRole.ADMIN
-            )
-        }
-    }
-
-    fun getUser(id: String): User {
-        val user = userRepository.findById(id)
-        if(user.isPresent) {
-            return user.get()
-        } else {
-            throw ApiException("User not found", HttpStatus.NOT_FOUND)
-        }
     }
 }

@@ -43,6 +43,7 @@ class SecurityConfig (
             .authorizeHttpRequests {
                 it.requestMatchers(HttpMethod.POST, "/users/login").permitAll()
                 it.requestMatchers(HttpMethod.POST, "/users/session/refresh").permitAll()
+                it.requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
                 it.requestMatchers(HttpMethod.POST, "/users").hasRole("ADMIN")
                 it.anyRequest().authenticated()
             }
