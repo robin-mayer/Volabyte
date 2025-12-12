@@ -5,4 +5,5 @@ export interface UserDTO {
   userName: string;
   displayName: string;
   role: UserRole;
+  lastLoginAt: Date | null;
 }

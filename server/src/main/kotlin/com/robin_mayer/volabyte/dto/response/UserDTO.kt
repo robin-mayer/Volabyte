@@ -8,5 +8,5 @@ data class UserDTO (
     val userName: String,
     val displayName: String,
     val role: UserRole,
-    val lastLogin: Date?
+    val lastLoginAt: Date?
 )

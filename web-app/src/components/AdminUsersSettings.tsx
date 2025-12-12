@@ -48,6 +48,7 @@ const AdminUsersSettings: React.FC<{ accessToken: string }> = ({
               <TableCell>Username</TableCell>
               <TableCell>Display Name</TableCell>
               <TableCell>Role</TableCell>
+              <TableCell>Last login</TableCell>
               <TableCell padding="checkbox" align="center"></TableCell>
               <TableCell padding="checkbox" align="center"></TableCell>
             </TableRow>
@@ -64,6 +65,9 @@ const AdminUsersSettings: React.FC<{ accessToken: string }> = ({
                 <TableCell>{user.userName}</TableCell>
                 <TableCell>{user.displayName}</TableCell>
                 <TableCell>{user.role}</TableCell>
+                <TableCell>
+                  {user.lastLoginAt ? user.lastLoginAt.toString() : "-"}
+                </TableCell>
                 <TableCell
                   sx={{
                     cursor: "pointer",
