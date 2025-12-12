@@ -61,10 +61,17 @@ const AdminCreateUserDialog: React.FC<{
           autoFocus
           id="name"
           label="Username"
+          value={userName}
           fullWidth
           variant="outlined"
           error={userNameExists}
-          onChange={(e) => setUserName(e.target.value.trim())}
+          onChange={(e) => {
+            const validated = e.target.value
+              .trim()
+              .toLowerCase()
+              .replace(/[^a-z0-9]/g, "");
+            setUserName(validated);
+          }}
         />
         <TextField
           id="name"
