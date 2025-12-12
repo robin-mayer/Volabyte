@@ -81,6 +81,10 @@ class UserService (
             throw ApiException("Username already exists", HttpStatus.BAD_REQUEST)
         }
 
+        if(!isValidUserName(userName)) {
+            throw ApiException("Username can only contain lowercase letters and numbers", HttpStatus.BAD_REQUEST)
+        }
+
         val hashedPassword = passwordEncoder.encode(password + passwordHashSalt)
         val user = User(
             userName = userName.lowercase(),
@@ -110,5 +114,9 @@ class UserService (
         } else {
             throw ApiException("User not found", HttpStatus.NOT_FOUND)
         }
+    }
+
+    fun isValidUserName(input: String): Boolean {
+        return Regex("^[a-z0-9]+$").matches(input)
     }
 }
