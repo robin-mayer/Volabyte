@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import {
   Box,
+  Button,
   Paper,
   Table,
   TableBody,
@@ -30,10 +31,15 @@ const AdminUsersSettings: React.FC<{ accessToken: string }> = ({
   }, []);
 
   return (
-    <Box>
-      <Typography variant="h5" gutterBottom>
-        Users
-      </Typography>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+        alignItems: "flex-start",
+      }}
+    >
+      <Typography variant="h5">Users</Typography>
       <TableContainer component={Paper} sx={{ width: "100%" }}>
         <Table aria-label="file table" stickyHeader>
           <TableHead>
@@ -97,6 +103,7 @@ const AdminUsersSettings: React.FC<{ accessToken: string }> = ({
           </TableBody>
         </Table>
       </TableContainer>
+      <Button variant="contained">Create new user</Button>
     </Box>
   );
 };
