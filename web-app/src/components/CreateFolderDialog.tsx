@@ -14,8 +14,19 @@ const CreateFolderDialog: React.FC<{
 }> = ({ open, handleClose, handleSubmit }) => {
   const [folderName, setFolderName] = React.useState<string>("");
 
+  const close = () => {
+    handleClose();
+    resetFields();
+  };
+
+  const resetFields = () => {
+    setTimeout(() => {
+      setFolderName("");
+    }, 300);
+  };
+
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog open={open} onClose={close}>
       <DialogContent>
         <TextField
           autoFocus
@@ -29,8 +40,7 @@ const CreateFolderDialog: React.FC<{
       <DialogActions>
         <Button
           onClick={() => {
-            setFolderName("");
-            handleClose();
+            close();
           }}
         >
           Cancel
@@ -38,8 +48,8 @@ const CreateFolderDialog: React.FC<{
         <Button
           disabled={folderName.length === 0}
           onClick={() => {
-            setFolderName("");
             handleSubmit(folderName);
+            resetFields();
           }}
         >
           Create

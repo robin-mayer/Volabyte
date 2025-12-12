@@ -7,6 +7,7 @@ import com.robin_mayer.volabyte.enums.UserRole
 import com.robin_mayer.volabyte.exception.ApiException
 import com.robin_mayer.volabyte.repository.UserRepository
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
@@ -25,6 +26,17 @@ class UserService (
     val passwordHashSalt: String? = null
     private val passwordEncoder = BCryptPasswordEncoder()
 
+    fun createInitialAdmin() {
+        if(userRepository.count() == 0L) {
+            createUser(
+                "admin",
+                "Admin",
+                "admin",
+                UserRole.ADMIN
+            )
+        }
+    }
+
     fun login(input: LoginUserDTO): AuthDataDTO {
         val user = userRepository.findByUserName(input.userName) ?: throw ApiException("Invalid credentials", HttpStatus.UNAUTHORIZED)
 
@@ -39,10 +51,10 @@ class UserService (
         val session = sessionService.createSession(user.id!!, input.deviceId, input.deviceName)
 
         return AuthDataDTO(
-            accessToken = accessTokenPair.first,
-            accessTokenExpiresAt = accessTokenPair.second,
-            refreshToken = session.refreshToken,
-            refreshTokenExpiresAt = session.expiresAt,
+            accessTokenPair.first,
+            accessTokenPair.second,
+            session.refreshToken,
+            session.expiresAt
         )
     }
 
@@ -56,19 +68,35 @@ class UserService (
         }
 
         val user = userOptional.get()
+        user.lastLoginAt = Date()
+        userRepository.save(user)
+
         val accessTokenPair = tokenService.generateAccessToken(user.id!!, user.role)
         val renewedSession = sessionService.renewSession(session)
 
         return AuthDataDTO(
-            accessToken = accessTokenPair.first,
-            accessTokenExpiresAt = accessTokenPair.second,
-            refreshToken = renewedSession.refreshToken,
-            refreshTokenExpiresAt = renewedSession.expiresAt,
+            accessTokenPair.first,
+            accessTokenPair.second,
+            renewedSession.refreshToken,
+            renewedSession.expiresAt
         )
     }
 
     fun logout(userId: String, deviceId: String) {
         sessionService.deleteByUserIdAndDeviceId(userId, deviceId)
+    }
+
+    fun getUser(id: String): User {
+        val user = userRepository.findById(id)
+        if(user.isPresent) {
+            return user.get()
+        } else {
+            throw ApiException("User not found", HttpStatus.NOT_FOUND)
+        }
+    }
+
+    fun getAllUsers(): List<User> {
+        return userRepository.findAll(Sort.by("userName").ascending())
     }
 
     fun createUser(
@@ -87,33 +115,12 @@ class UserService (
 
         val hashedPassword = passwordEncoder.encode(password + passwordHashSalt)
         val user = User(
-            userName = userName.lowercase(),
-            displayName = displayName,
-            password = hashedPassword,
-            role = role
+            userName.lowercase(),
+            displayName,
+            hashedPassword,
+            role
         )
-
         return userRepository.save(user)
-    }
-
-    fun createInitialAdmin() {
-        if(userRepository.count() == 0L) {
-            createUser(
-                userName = "admin",
-                displayName = "Admin",
-                password = "admin",
-                role = UserRole.ADMIN
-            )
-        }
-    }
-
-    fun getUser(id: String): User {
-        val user = userRepository.findById(id)
-        if(user.isPresent) {
-            return user.get()
-        } else {
-            throw ApiException("User not found", HttpStatus.NOT_FOUND)
-        }
     }
 
     fun isValidUserName(input: String): Boolean {
