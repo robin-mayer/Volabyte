@@ -10,7 +10,7 @@ import {
   Snackbar,
   TextField,
 } from "@mui/material";
-import { Logout } from "@mui/icons-material";
+import { Settings, Logout } from "@mui/icons-material";
 import type { AuthUser } from "../models/AuthUser";
 import AuthUserImpl from "../core/AuthUserImpl";
 
@@ -97,6 +97,16 @@ const Header: React.FC<{
             transformOrigin={{ horizontal: "right", vertical: "top" }}
             anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
           >
+            <MenuItem
+              onClick={() => {
+                handleClose();
+              }}
+            >
+              <ListItemIcon>
+                <Settings fontSize="small" />
+              </ListItemIcon>
+              Settings
+            </MenuItem>
             <MenuItem
               onClick={() => {
                 handleClose();
