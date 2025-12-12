@@ -1,8 +1,10 @@
 import React, { useEffect } from "react";
 import {
+  Alert,
   Box,
   Button,
   Paper,
+  Snackbar,
   Table,
   TableBody,
   TableCell,
@@ -24,6 +26,8 @@ const AdminUsersSettings: React.FC<{ accessToken: string }> = ({
   const [users, setUsers] = React.useState<UserDTO[]>([]);
   const [openCreateUserDialog, setOpenCreateUserDialog] =
     React.useState<boolean>(false);
+  const [showSnackBar, setShowSnackbar] = React.useState<boolean>(false);
+  const [snackbarText, setSnackbarText] = React.useState<string | null>(null);
 
   useEffect(() => {
     Request.get("/users", accessToken).then((response) => {
@@ -55,9 +59,12 @@ const AdminUsersSettings: React.FC<{ accessToken: string }> = ({
       );
       setUsers(updatedUsers);
       setOpenCreateUserDialog(false);
+      setSnackbarText(`User ${createdUser.userName} created successfully.`);
     } else {
-      // todo show snackbar
+      setOpenCreateUserDialog(false);
+      setSnackbarText("Failed to create user. Please try again.");
     }
+    setShowSnackbar(true);
   };
 
   return (
@@ -147,6 +154,23 @@ const AdminUsersSettings: React.FC<{ accessToken: string }> = ({
         handleClose={() => setOpenCreateUserDialog(false)}
         handleSubmit={createUser}
       />
+      <Snackbar
+        open={snackbarText !== null && showSnackBar}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        autoHideDuration={2000}
+        onClose={() => setShowSnackbar(false)}
+      >
+        <Alert
+          severity={snackbarText?.startsWith("User") ? "success" : "error"}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbarText}
+        </Alert>
+      </Snackbar>
     </React.Fragment>
   );
 };
