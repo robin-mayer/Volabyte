@@ -10,9 +10,10 @@ import {
   Snackbar,
   TextField,
 } from "@mui/material";
-import { Logout } from "@mui/icons-material";
+import { Settings, Logout } from "@mui/icons-material";
 import type { AuthUser } from "../models/AuthUser";
 import AuthUserImpl from "../core/AuthUserImpl";
+import { useNavigate } from "react-router-dom";
 
 const Header: React.FC<{
   height: number;
@@ -28,6 +29,7 @@ const Header: React.FC<{
   const handleClose = () => {
     setAnchorEl(null);
   };
+  let navigate = useNavigate();
 
   return (
     <React.Fragment>
@@ -97,6 +99,19 @@ const Header: React.FC<{
             transformOrigin={{ horizontal: "right", vertical: "top" }}
             anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
           >
+            {authUser.role === "ADMIN" && (
+              <MenuItem
+                onClick={() => {
+                  handleClose();
+                  navigate("/settings");
+                }}
+              >
+                <ListItemIcon>
+                  <Settings fontSize="small" />
+                </ListItemIcon>
+                Settings
+              </MenuItem>
+            )}
             <MenuItem
               onClick={() => {
                 handleClose();

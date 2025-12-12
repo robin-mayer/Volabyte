@@ -1,5 +1,6 @@
 package com.robin_mayer.volabyte.controller
 
+import com.robin_mayer.volabyte.dto.request.CreateUserDTO
 import com.robin_mayer.volabyte.dto.request.LoginUserDTO
 import com.robin_mayer.volabyte.dto.request.LogoutUserDTO
 import com.robin_mayer.volabyte.dto.request.UserSessionRefreshDTO
@@ -154,7 +155,7 @@ class UserControllerTest {
             "/users/self",
             HttpMethod.GET,
             HttpEntity(null, null),
-            UserDTO::class.java
+            Void::class.java
         )
 
         // then
@@ -230,7 +231,7 @@ class UserControllerTest {
     @Order(10)
     fun logout_Unauthorized() {
         // given
-        val logoutUserDTO = LogoutUserDTO("bob")
+        val logoutUserDTO = LogoutUserDTO("device-id")
 
         // when
         val logoutResponse = restTemplate.exchange(
@@ -278,5 +279,160 @@ class UserControllerTest {
         // then
         assertEquals(HttpStatus.UNAUTHORIZED, response.statusCode)
         assertEquals("Invalid refresh token", response.body?.message)
+    }
+
+    @Test
+    @Order(13)
+    fun createUser_Unauthorized() {
+        //given
+        val createUserDTO = CreateUserDTO(
+            userName = "alice",
+            displayName = "Alice",
+            password = "password123",
+            UserRole.USER
+        )
+
+        // when
+        val response = restTemplate.exchange(
+            "/users",
+            HttpMethod.POST,
+            HttpEntity(createUserDTO, null),
+            Void::class.java
+        )
+
+        // then
+        assertEquals(HttpStatus.UNAUTHORIZED, response.statusCode)
+    }
+
+    @Test
+    @Order(14)
+    fun getUsers_Unauthorized() {
+        // when
+        val response = restTemplate.exchange(
+            "/users",
+            HttpMethod.GET,
+            HttpEntity(null, null),
+            Void::class.java
+        )
+
+        // then
+        assertEquals(HttpStatus.UNAUTHORIZED, response.statusCode)
+    }
+
+    @Test
+    @Order(15)
+    fun getUsers_AsUser() {
+        // given
+        val headers = HttpHeaders()
+        headers.setBearerAuth(validAccessToken!!)
+
+        // when
+        val response = restTemplate.exchange(
+            "/users",
+            HttpMethod.GET,
+            HttpEntity(null, headers),
+            Void::class.java
+        )
+
+        // then
+        assertEquals(HttpStatus.UNAUTHORIZED, response.statusCode)
+    }
+
+    @Test
+    @Order(16)
+    fun createUser_AsUser() {
+        //given
+        val headers = HttpHeaders()
+        headers.setBearerAuth(validAccessToken!!)
+        val createUserDTO = CreateUserDTO(
+            userName = "alice",
+            displayName = "Alice",
+            password = "password123",
+            UserRole.USER
+        )
+
+        // when
+        val response = restTemplate.exchange(
+            "/users",
+            HttpMethod.POST,
+            HttpEntity(createUserDTO, headers),
+            Void::class.java
+        )
+
+        // then
+        assertEquals(HttpStatus.UNAUTHORIZED, response.statusCode)
+    }
+
+    @Test
+    @Order(17)
+    fun loginAsAdmin() {
+        // given
+        val loginUserDTO = LoginUserDTO(
+            userName = "admin",
+            password = "password",
+            "admin-device-id",
+            "Admin Device"
+        )
+
+        // when
+        val response = restTemplate.exchange(
+            "/users/login",
+            HttpMethod.POST,
+            HttpEntity(loginUserDTO),
+            AuthDataDTO::class.java
+        )
+
+        // then
+        assertEquals(HttpStatus.OK, response.statusCode)
+        assertTrue(response.body?.accessToken!!.length > 50)
+        assertTrue(response.body?.refreshToken!!.length == 128)
+        validAccessToken = response.body?.accessToken
+    }
+
+    @Test
+    @Order(18)
+    fun getUsers_AsAdmin() {
+        // given
+        val headers = HttpHeaders()
+        headers.setBearerAuth(validAccessToken!!)
+
+        // when
+        val response = restTemplate.exchange(
+            "/users",
+            HttpMethod.GET,
+            HttpEntity(null, headers),
+            Array<UserDTO>::class.java
+        )
+
+        // then
+        assertEquals(HttpStatus.OK, response.statusCode)
+        assertEquals(2, response.body!!.size)
+        assertEquals("admin", response.body!![0].userName)
+        assertEquals("bob", response.body!![1].userName)
+    }
+
+    @Test
+    @Order(19)
+    fun createUser_AsAdmin() {
+        //given
+        val headers = HttpHeaders()
+        headers.setBearerAuth(validAccessToken!!)
+        val createUserDTO = CreateUserDTO(
+            userName = "alice",
+            displayName = "Alice",
+            password = "password123",
+            UserRole.USER
+        )
+
+        // when
+        val response = restTemplate.exchange(
+            "/users",
+            HttpMethod.POST,
+            HttpEntity(createUserDTO, headers),
+            Void::class.java
+        )
+
+        // then
+        assertEquals(HttpStatus.CREATED, response.statusCode)
     }
 }

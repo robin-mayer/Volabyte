@@ -26,6 +26,11 @@ class TokenService (
     }
 
     fun validateAccessToken(token: String): Claims? {
-        return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).payload
+        return Jwts
+            .parser()
+            .verifyWith(key)
+            .build()
+            .parseSignedClaims(token)
+            .payload
     }
 }

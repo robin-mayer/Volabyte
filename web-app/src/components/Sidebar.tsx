@@ -10,10 +10,13 @@ import {
   Link,
 } from "@mui/material";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
+import { useNavigate } from "react-router-dom";
 
 const drawerWidth = 200;
 
 const Sidebar: React.FC<{ height: number }> = ({ height }) => {
+  let navigate = useNavigate();
+
   return (
     <Drawer
       sx={{
@@ -53,7 +56,7 @@ const Sidebar: React.FC<{ height: number }> = ({ height }) => {
       >
         <List sx={{ width: "100%" }}>
           <ListItem disablePadding>
-            <ListItemButton>
+            <ListItemButton onClick={() => navigate("/files")}>
               <ListItemIcon>
                 <Inventory2Icon />
               </ListItemIcon>
