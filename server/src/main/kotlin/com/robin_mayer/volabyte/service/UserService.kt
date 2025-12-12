@@ -116,7 +116,6 @@ class UserService (
             hashedPassword,
             role
         )
-
         return userRepository.save(user)
     }
 }
