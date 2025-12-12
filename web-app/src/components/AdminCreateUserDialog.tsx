@@ -12,12 +12,14 @@ import {
   Select,
   TextField,
 } from "@mui/material";
+import type { UserDTO } from "../models/UserDTO";
 
 const AdminCreateUserDialog: React.FC<{
   open: boolean;
   handleClose: any;
   handleSubmit: any;
-}> = ({ open, handleClose, handleSubmit }) => {
+  existingUsers: UserDTO[];
+}> = ({ open, handleClose, handleSubmit, existingUsers }) => {
   const [userName, setUserName] = React.useState<string>("");
   const [displayName, setDisplayName] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
@@ -39,6 +41,10 @@ const AdminCreateUserDialog: React.FC<{
     }, 300);
   };
 
+  const userNameExists = existingUsers.some(
+    (existingUser) => existingUser.userName === userName
+  );
+
   return (
     <Dialog open={open} onClose={close}>
       <DialogTitle>Create New User</DialogTitle>
@@ -57,6 +63,7 @@ const AdminCreateUserDialog: React.FC<{
           label="Username"
           fullWidth
           variant="outlined"
+          error={userNameExists}
           onChange={(e) => setUserName(e.target.value.trim())}
         />
         <TextField
@@ -109,7 +116,8 @@ const AdminCreateUserDialog: React.FC<{
             userName.length === 0 ||
             displayName.length === 0 ||
             password.length === 0 ||
-            password !== passwordConfirm
+            password !== passwordConfirm ||
+            userNameExists
           }
           onClick={() => {
             handleSubmit(userName, displayName, password, role);

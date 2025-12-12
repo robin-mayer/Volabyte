@@ -153,6 +153,7 @@ const AdminUsersSettings: React.FC<{ accessToken: string }> = ({
         open={openCreateUserDialog}
         handleClose={() => setOpenCreateUserDialog(false)}
         handleSubmit={createUser}
+        existingUsers={users}
       />
       <Snackbar
         open={snackbarText !== null && showSnackBar}
