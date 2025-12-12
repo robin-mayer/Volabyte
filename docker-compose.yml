@@ -11,6 +11,8 @@ services:
       POSTGRES_DB: volabyte
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./docker_volumes/postgres:/var/lib/postgresql
   server:
     container_name: volabyte_server
     image: robinmayer/volabyte-server:${VERSION}
