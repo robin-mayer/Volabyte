@@ -19,7 +19,7 @@ class UserServiceTest @Autowired constructor(
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     fun createUser() {
         // given
-        val userName = "testUser"
+        val userName = "testuser"
         val displayName = "Test User"
         val password = "testPassword"
         val role = UserRole.USER
@@ -66,5 +66,53 @@ class UserServiceTest @Autowired constructor(
             assertEquals("User not found", e.message)
             assertEquals(HttpStatus.NOT_FOUND, e.httpStatus)
         }
+    }
+
+    @Test
+    fun validateUserName() {
+        // given
+        val userName = "testuser123"
+
+        // when
+        val valid = userService.isValidUserName(userName)
+
+        // then
+        assertEquals(true, valid)
+    }
+
+    @Test
+    fun validateUserName_BlankSpace() {
+        // given
+        val userName = "test User123"
+
+        // when
+        val valid = userService.isValidUserName(userName)
+
+        // then
+        assertEquals(false, valid)
+    }
+
+    @Test
+    fun validateUserName_UpperCaseLetter() {
+        // given
+        val userName = "testUser"
+
+        // when
+        val valid = userService.isValidUserName(userName)
+
+        // then
+        assertEquals(false, valid)
+    }
+
+    @Test
+    fun validateUserName_SpecialCharacter() {
+        // given
+        val userName = "test#User"
+
+        // when
+        val valid = userService.isValidUserName(userName)
+
+        // then
+        assertEquals(false, valid)
     }
 }
