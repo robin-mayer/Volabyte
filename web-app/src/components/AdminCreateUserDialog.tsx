@@ -65,6 +65,7 @@ const AdminCreateUserDialog: React.FC<{
           fullWidth
           variant="outlined"
           error={userNameExists}
+          helperText={userNameExists ? "Username already exists" : null}
           onChange={(e) => {
             const validated = e.target.value
               .trim()
@@ -82,9 +83,15 @@ const AdminCreateUserDialog: React.FC<{
         />
         <TextField
           id="name"
-          label="Password (min. 8 characters)"
+          label="Password"
           fullWidth
           variant="outlined"
+          error={password.length > 0 && password.length < 8}
+          helperText={
+            password.length > 0 && password.length < 8
+              ? "Password must be at least 8 characters"
+              : null
+          }
           onChange={(e) => setPassword(e.target.value.trim())}
           type="password"
         />
@@ -92,7 +99,12 @@ const AdminCreateUserDialog: React.FC<{
           id="name"
           label="Repeat Password"
           fullWidth
-          error={password != passwordConfirm}
+          error={passwordConfirm.length > 0 && password != passwordConfirm}
+          helperText={
+            passwordConfirm.length > 0 && password != passwordConfirm
+              ? "Passwords do not match"
+              : null
+          }
           variant="outlined"
           type="password"
           onChange={(e) => setPasswordConfirm(e.target.value.trim())}
@@ -122,7 +134,7 @@ const AdminCreateUserDialog: React.FC<{
           disabled={
             userName.length === 0 ||
             displayName.length === 0 ||
-            password.length === 0 ||
+            password.length < 8 ||
             password !== passwordConfirm ||
             userNameExists
           }
