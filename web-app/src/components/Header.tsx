@@ -99,17 +99,19 @@ const Header: React.FC<{
             transformOrigin={{ horizontal: "right", vertical: "top" }}
             anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
           >
-            <MenuItem
-              onClick={() => {
-                handleClose();
-                navigate("/settings");
-              }}
-            >
-              <ListItemIcon>
-                <Settings fontSize="small" />
-              </ListItemIcon>
-              Settings
-            </MenuItem>
+            {authUser.role === "ADMIN" && (
+              <MenuItem
+                onClick={() => {
+                  handleClose();
+                  navigate("/settings");
+                }}
+              >
+                <ListItemIcon>
+                  <Settings fontSize="small" />
+                </ListItemIcon>
+                Settings
+              </MenuItem>
+            )}
             <MenuItem
               onClick={() => {
                 handleClose();
