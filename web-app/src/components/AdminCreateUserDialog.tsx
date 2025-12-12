@@ -12,12 +12,14 @@ import {
   Select,
   TextField,
 } from "@mui/material";
+import type { UserDTO } from "../models/UserDTO";
 
 const AdminCreateUserDialog: React.FC<{
   open: boolean;
   handleClose: any;
   handleSubmit: any;
-}> = ({ open, handleClose, handleSubmit }) => {
+  existingUsers: UserDTO[];
+}> = ({ open, handleClose, handleSubmit, existingUsers }) => {
   const [userName, setUserName] = React.useState<string>("");
   const [displayName, setDisplayName] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
@@ -39,6 +41,10 @@ const AdminCreateUserDialog: React.FC<{
     }, 300);
   };
 
+  const userNameExists = existingUsers.some(
+    (existingUser) => existingUser.userName === userName
+  );
+
   return (
     <Dialog open={open} onClose={close}>
       <DialogTitle>Create New User</DialogTitle>
@@ -55,9 +61,18 @@ const AdminCreateUserDialog: React.FC<{
           autoFocus
           id="name"
           label="Username"
+          value={userName}
           fullWidth
           variant="outlined"
-          onChange={(e) => setUserName(e.target.value.trim())}
+          error={userNameExists}
+          helperText={userNameExists ? "Username already exists" : null}
+          onChange={(e) => {
+            const validated = e.target.value
+              .trim()
+              .toLowerCase()
+              .replace(/[^a-z0-9]/g, "");
+            setUserName(validated);
+          }}
         />
         <TextField
           id="name"
@@ -68,9 +83,15 @@ const AdminCreateUserDialog: React.FC<{
         />
         <TextField
           id="name"
-          label="Password (min. 8 characters)"
+          label="Password"
           fullWidth
           variant="outlined"
+          error={password.length > 0 && password.length < 8}
+          helperText={
+            password.length > 0 && password.length < 8
+              ? "Password must be at least 8 characters"
+              : null
+          }
           onChange={(e) => setPassword(e.target.value.trim())}
           type="password"
         />
@@ -78,7 +99,12 @@ const AdminCreateUserDialog: React.FC<{
           id="name"
           label="Repeat Password"
           fullWidth
-          error={password != passwordConfirm}
+          error={passwordConfirm.length > 0 && password != passwordConfirm}
+          helperText={
+            passwordConfirm.length > 0 && password != passwordConfirm
+              ? "Passwords do not match"
+              : null
+          }
           variant="outlined"
           type="password"
           onChange={(e) => setPasswordConfirm(e.target.value.trim())}
@@ -108,8 +134,9 @@ const AdminCreateUserDialog: React.FC<{
           disabled={
             userName.length === 0 ||
             displayName.length === 0 ||
-            password.length === 0 ||
-            password !== passwordConfirm
+            password.length < 8 ||
+            password !== passwordConfirm ||
+            userNameExists
           }
           onClick={() => {
             handleSubmit(userName, displayName, password, role);
