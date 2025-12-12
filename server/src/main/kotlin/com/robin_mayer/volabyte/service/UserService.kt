@@ -42,8 +42,7 @@ class UserService (
             accessTokenPair.first,
             accessTokenPair.second,
             session.refreshToken,
-            session.expiresAt,
-            user.role
+            session.expiresAt
         )
     }
 
@@ -67,8 +66,7 @@ class UserService (
             accessTokenPair.first,
             accessTokenPair.second,
             renewedSession.refreshToken,
-            renewedSession.expiresAt,
-            user.role
+            renewedSession.expiresAt
         )
     }
 
