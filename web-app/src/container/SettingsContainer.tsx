@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 const SettingsContainer = () => {
   return (
@@ -10,7 +10,8 @@ const SettingsContainer = () => {
         gap: "1rem",
       }}
     >
-      Settings Page
+      <Typography variant="h4">Settings</Typography>
+      <Typography variant="h5">Users</Typography>
     </Box>
   );
 };
