@@ -1,6 +1,9 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Divider, Typography } from "@mui/material";
+import AdminUsersSettings from "../components/AdminUsersSettings";
 
-const SettingsContainer = () => {
+const SettingsContainer: React.FC<{ accessToken: string }> = ({
+  accessToken,
+}) => {
   return (
     <Box
       sx={{
@@ -10,8 +13,11 @@ const SettingsContainer = () => {
         gap: "1rem",
       }}
     >
-      <Typography variant="h4">Settings</Typography>
-      <Typography variant="h5">Users</Typography>
+      <Typography variant="h4" gutterBottom>
+        Settings
+      </Typography>
+      <Divider />
+      <AdminUsersSettings accessToken={accessToken} />
     </Box>
   );
 };

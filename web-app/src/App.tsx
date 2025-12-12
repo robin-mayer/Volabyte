@@ -82,7 +82,12 @@ function App() {
                 path="files"
                 element={<FilesContainer accessToken={authUser?.accessToken} />}
               />
-              <Route path="settings" element={<SettingsContainer />} />
+              <Route
+                path="settings"
+                element={
+                  <SettingsContainer accessToken={authUser?.accessToken} />
+                }
+              />
             </Route>
           ) : (
             <Route path="/" element={<Navigate to="/login" replace />} />

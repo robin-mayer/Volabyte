@@ -1,0 +1,104 @@
+import React, { useEffect } from "react";
+import {
+  Box,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
+import Typography from "@mui/material/Typography";
+import type { UserDTO } from "../models/UserDTO";
+import Request from "../core/Request";
+import { DeleteOutline, Edit } from "@mui/icons-material";
+
+const AdminUsersSettings: React.FC<{ accessToken: string }> = ({
+  accessToken,
+}) => {
+  const [users, setUsers] = React.useState<UserDTO[]>([]);
+
+  useEffect(() => {
+    Request.get("/users", accessToken).then((response) => {
+      if (response.status === 200) {
+        response.json().then((data: UserDTO[]) => {
+          setUsers(data);
+        });
+      }
+    });
+  }, []);
+
+  return (
+    <Box>
+      <Typography variant="h5" gutterBottom>
+        Users
+      </Typography>
+      <TableContainer component={Paper} sx={{ width: "100%" }}>
+        <Table aria-label="file table" stickyHeader>
+          <TableHead>
+            <TableRow>
+              <TableCell>ID</TableCell>
+              <TableCell>Username</TableCell>
+              <TableCell>Display Name</TableCell>
+              <TableCell>Role</TableCell>
+              <TableCell padding="checkbox" align="center"></TableCell>
+              <TableCell padding="checkbox" align="center"></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow
+                key={"user_" + user.id}
+                sx={{
+                  "&:last-child td, &:last-child th": { border: 0 },
+                }}
+              >
+                <TableCell>{user.id}</TableCell>
+                <TableCell>{user.userName}</TableCell>
+                <TableCell>{user.displayName}</TableCell>
+                <TableCell>{user.role}</TableCell>
+                <TableCell
+                  sx={{
+                    cursor: "pointer",
+                    "&:hover": {
+                      backgroundColor: "rgba(0, 0, 0, 0.03)",
+                    },
+                  }}
+                  onClick={() => {
+                    console.error(
+                      "Wants to edit user with id: " +
+                        user.id +
+                        ". Not implemented yet."
+                    );
+                  }}
+                >
+                  <Edit />
+                </TableCell>
+                <TableCell
+                  sx={{
+                    cursor: "pointer",
+                    "&:hover": {
+                      backgroundColor: "rgba(0, 0, 0, 0.03)",
+                    },
+                  }}
+                  onClick={() => {
+                    console.error(
+                      "Wants to delete user with id: " +
+                        user.id +
+                        ". Not implemented yet."
+                    );
+                  }}
+                >
+                  <DeleteOutline />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
+  );
+};
+
+export default AdminUsersSettings;
