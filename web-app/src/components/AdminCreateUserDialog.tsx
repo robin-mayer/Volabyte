@@ -25,6 +25,7 @@ const AdminCreateUserDialog: React.FC<{
   const [password, setPassword] = React.useState<string>("");
   const [passwordConfirm, setPasswordConfirm] = React.useState<string>("");
   const [role, setRole] = React.useState<UserRole>("USER");
+  const [submitted, setSubmitted] = React.useState<boolean>(false);
 
   const close = () => {
     handleClose();
@@ -64,7 +65,7 @@ const AdminCreateUserDialog: React.FC<{
           value={userName}
           fullWidth
           variant="outlined"
-          error={userNameExists}
+          error={userNameExists && !submitted}
           helperText={userNameExists ? "Username already exists" : null}
           onChange={(e) => {
             const validated = e.target.value
@@ -139,6 +140,7 @@ const AdminCreateUserDialog: React.FC<{
             userNameExists
           }
           onClick={() => {
+            setSubmitted(true);
             handleSubmit(userName, displayName, password, role);
             resetFields();
           }}
