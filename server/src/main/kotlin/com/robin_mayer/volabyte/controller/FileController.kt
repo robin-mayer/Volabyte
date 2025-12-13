@@ -1,6 +1,7 @@
 package com.robin_mayer.volabyte.controller
 
 import com.robin_mayer.volabyte.dto.request.CreateDirectoryDTO
+import com.robin_mayer.volabyte.dto.request.UploadFileDTO
 import com.robin_mayer.volabyte.dto.response.FileDTO
 import com.robin_mayer.volabyte.service.FileService
 import org.springframework.http.HttpStatus
@@ -10,7 +11,9 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
 
 @RestController
 class FileController (
@@ -33,5 +36,15 @@ class FileController (
     ): ResponseEntity<FileDTO> {
         val createdDirectory = fileService.createDirectory(createDirectoryDTO, authentication)
         return ResponseEntity(createdDirectory.toDTO(), HttpStatus.CREATED)
+    }
+
+    @PostMapping("/files/upload")
+    fun uploadFile(
+        authentication: Authentication,
+        @RequestParam file: MultipartFile,
+        @RequestBody uploadFileDTO: UploadFileDTO
+    ): ResponseEntity<FileDTO> {
+        // not implemented
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build()
     }
 }
