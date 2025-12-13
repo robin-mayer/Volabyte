@@ -26,7 +26,11 @@ class FileService (
                 throw ApiException("Parent must be a directory", HttpStatus.BAD_REQUEST)
             }
         }
-        return fileRepository.findByOwnerIdAndParentIdOrderByName(ownerId, parentId)
+        return fileRepository
+            .findByOwnerIdAndParentId(ownerId, parentId)
+            .sortedWith(compareBy<File> {
+                it.name.replace(" ", "~")
+            }.thenBy { it.name })
     }
 
     fun createDirectory(
@@ -52,7 +56,7 @@ class FileService (
         return fileRepository.save(newFile)
     }
 
-    private fun generateUniqueName(
+    fun generateUniqueName(
         parentId: String?,
         name: String,
         ownerId: String
