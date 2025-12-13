@@ -61,26 +61,14 @@ class FileService (
         name: String,
         ownerId: String
     ): String {
-        if (
-            !fileRepository.existsByOwnerIdAndParentIdAndNameIgnoreCase(
-                ownerId,
-                parentId,
-                name
-            )
-        ) {
-            return name
-        }
-
-        var counter = 1
+        var counter = 0
         while (true) {
-            val newName = "$name ($counter)"
-            if (
-                !fileRepository.existsByOwnerIdAndParentIdAndNameIgnoreCase(
-                    ownerId,
-                    parentId,
-                    newName
-                )
-            ) {
+            val newName = if (counter == 0) name else {
+                val fileNameWithoutExtension = name.substringBefore('.')
+                val fileExtension = name.replace(fileNameWithoutExtension, "")
+                "$fileNameWithoutExtension ($counter)$fileExtension"
+            }
+            if (!fileRepository.existsByOwnerIdAndParentIdAndNameIgnoreCase(ownerId, parentId, newName)) {
                 return newName
             }
             counter++
