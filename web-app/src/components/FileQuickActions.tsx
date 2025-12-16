@@ -7,6 +7,7 @@ import Request from "../core/Request";
 import type { FileDTO } from "../models/FileDTO";
 import { Alert, Snackbar } from "@mui/material";
 import UploadIcon from "@mui/icons-material/Upload";
+import type { UploadedChunkDTO } from "../models/UploadedChunkDTO";
 
 const FileQuickActions: React.FC<{
   accessToken: string;
@@ -21,7 +22,30 @@ const FileQuickActions: React.FC<{
 
   const handleFilesChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    console.log(files);
+    if (!files) return;
+
+    Array.from(files).forEach(async (file) => {
+      const response = await Request.uploadFileChunk(
+        accessToken,
+        file,
+        currentParentId,
+        null,
+        true
+      );
+
+      if (response.status === 200) {
+        const createdFile: UploadedChunkDTO = await response.json();
+        if (createdFile.uploadedFile) {
+          setFiles((prevFiles: FileDTO[]) =>
+            [...prevFiles, createdFile.uploadedFile!].sort((a, b) =>
+              a.name.localeCompare(b.name)
+            )
+          );
+        }
+      } else {
+        console.error("File upload failed");
+      }
+    });
   };
 
   const createDirectory = async (name: string) => {
