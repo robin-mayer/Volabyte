@@ -93,18 +93,18 @@ class FileService (
 
         if(input.lastChunk) {
             val referencedFileName = "${UUID.randomUUID()}__${sanitizeFileString(input.fileName)}"
+            val finalPath = getUploadDirectory(ownerId)
+            val finalFile = finalPath.resolve(referencedFileName)
+
             val savedFile = fileRepository.save(
                 File(
                     generateUniqueName(input.parentId, input.fileName, ownerId),
                     false,
-                    referencedFileName,
+                    finalFile.toString(),
                     input.parentId,
                     ownerId,
                 )
             )
-
-            val finalPath = getUploadDirectory(ownerId)
-            val finalFile = finalPath.resolve(savedFile.referencedFile!!)
 
             Files.newOutputStream(finalFile, StandardOpenOption.CREATE).use { outputStream ->
                 for(i in 0 until chunkIndex + 1) {
