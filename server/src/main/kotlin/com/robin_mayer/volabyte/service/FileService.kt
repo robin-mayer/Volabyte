@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import java.io.IOException
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 import java.time.LocalDate
@@ -74,14 +75,15 @@ class FileService (
         input: UploadChunkDTO,
         chunk: MultipartFile
     ): UploadedChunkDTO {
-        val uploadId = input.uploadId?.replace("..", "") ?: UUID.randomUUID().toString()
+        val uploadId = sanitizeFileString(input.uploadId ?: UUID.randomUUID().toString())
 
         val tempUploadPath = Paths.get(String.format("%s/%s/%s", storagePath, tempFolder, uploadId))
         if(!Files.exists(tempUploadPath)) {
             Files.createDirectories(tempUploadPath)
         }
-        val chunkIndex = tempUploadPath.toFile().listFiles()?.size ?: 0
 
+        val chunkIndex = tempUploadPath.toFile().listFiles()?.size
+            ?: throw ApiException("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR)
         chunk.inputStream.use { inputStream ->
             Files.newOutputStream(
                 tempUploadPath.resolve("chunk_${chunkIndex}.part"),
@@ -90,23 +92,33 @@ class FileService (
         }
 
         if(input.lastChunk) {
-            val currentMonthPath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM"))
-            val finalPath = Paths.get(
-                "${storagePath}/${filesFolder}/${ownerId.replace("..", "")}/${currentMonthPath}"
+            val referencedFileName = "${UUID.randomUUID()}__${sanitizeFileString(input.fileName)}"
+            val savedFile = fileRepository.save(
+                File(
+                    generateUniqueName(input.parentId, input.fileName, ownerId),
+                    false,
+                    referencedFileName,
+                    input.parentId,
+                    ownerId,
+                )
             )
-            if(!Files.exists(finalPath)) {
-                Files.createDirectories(finalPath)
-            }
 
-            val finalFile = finalPath.resolve("${UUID.randomUUID()}__${input.fileName.replace("..", "")}")
+            val finalPath = getUploadDirectory(ownerId)
+            val finalFile = finalPath.resolve(savedFile.referencedFile!!)
+
             Files.newOutputStream(finalFile, StandardOpenOption.CREATE).use { outputStream ->
-                for(i in 0 until chunkIndex) {
+                for(i in 0 until chunkIndex + 1) {
                     val chunk = tempUploadPath.resolve("chunk_${i}.part")
                     Files.newInputStream(chunk).use { it.copyTo(outputStream) }
                 }
             }
 
             tempUploadPath.toFile().deleteRecursively()
+
+            return UploadedChunkDTO(
+                null,
+                savedFile
+            )
         }
 
         return UploadedChunkDTO(
@@ -140,5 +152,23 @@ class FileService (
             }
             counter++
         }
+    }
+
+    fun sanitizeFileString(fileString: String): String {
+        return fileString
+            .replace("...", "")
+            .replace("..", "")
+            .replace("/", "")
+    }
+
+    fun getUploadDirectory(ownerId: String): Path {
+        val currentMonthPath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM"))
+        val uploadPath = Paths.get(
+            "${storagePath}/${filesFolder}/${sanitizeFileString(ownerId)}/${currentMonthPath}"
+        )
+        if(!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath)
+        }
+        return uploadPath
     }
 }

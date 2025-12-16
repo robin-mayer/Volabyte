@@ -79,4 +79,40 @@ class FileServiceTest @Autowired constructor(
         // then
         assertEquals("File (2).txt", uniqueName)
     }
+
+    @Test
+    fun sanitizeFileString_RemovesPathTraversal() {
+        // given
+        val originalName = "../secret.txt"
+
+        // when
+        val sanitized = fileService.sanitizeFileString(originalName)
+
+        // then
+        assertEquals("secret.txt", sanitized)
+    }
+
+    @Test
+    fun sanitizeFileString_RemovesPathTraversal_2() {
+        // given
+        val originalName = ".../secret.txt"
+
+        // when
+        val sanitized = fileService.sanitizeFileString(originalName)
+
+        // then
+        assertEquals("secret.txt", sanitized)
+    }
+
+    @Test
+    fun sanitizeFileString_RemovesPathTraversal_3() {
+        // given
+        val originalName = "secret.txt"
+
+        // when
+        val sanitized = fileService.sanitizeFileString(originalName)
+
+        // then
+        assertEquals("secret.txt", sanitized)
+    }
 }
