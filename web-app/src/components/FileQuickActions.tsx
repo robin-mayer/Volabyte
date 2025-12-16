@@ -6,15 +6,23 @@ import type { CreateDirectoryDTO } from "../models/CreateDirectoryDTO";
 import Request from "../core/Request";
 import type { FileDTO } from "../models/FileDTO";
 import { Alert, Snackbar } from "@mui/material";
+import UploadIcon from "@mui/icons-material/Upload";
 
 const FileQuickActions: React.FC<{
   accessToken: string;
   currentParentId: string | null;
   setFiles: any;
 }> = ({ accessToken, currentParentId, setFiles }) => {
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
   const [openCreateFolderDialog, setOpenCreateFolderDialog] =
     React.useState<boolean>(false);
   const [showSnackBar, setShowSnackbar] = React.useState<boolean>(false);
+
+  const handleFilesChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    console.log(files);
+  };
 
   const createDirectory = async (name: string) => {
     setOpenCreateFolderDialog(false);
@@ -44,6 +52,13 @@ const FileQuickActions: React.FC<{
       <UploadSpeedDial
         actions={[
           {
+            icon: <UploadIcon />,
+            name: "Upload file",
+            onClick: () => {
+              fileInputRef.current?.click();
+            },
+          },
+          {
             icon: <CreateNewFolderIcon />,
             name: "New Folder",
             onClick: () => {
@@ -51,6 +66,12 @@ const FileQuickActions: React.FC<{
             },
           },
         ]}
+      />
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFilesChanged}
+        style={{ display: "none" }}
       />
       <CreateFolderDialog
         open={openCreateFolderDialog}
