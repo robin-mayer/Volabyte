@@ -53,7 +53,7 @@ const FileQuickActions: React.FC<{
         actions={[
           {
             icon: <UploadIcon />,
-            name: "Upload file",
+            name: "Upload files",
             onClick: () => {
               fileInputRef.current?.click();
             },
@@ -72,6 +72,7 @@ const FileQuickActions: React.FC<{
         ref={fileInputRef}
         onChange={handleFilesChanged}
         style={{ display: "none" }}
+        multiple
       />
       <CreateFolderDialog
         open={openCreateFolderDialog}
