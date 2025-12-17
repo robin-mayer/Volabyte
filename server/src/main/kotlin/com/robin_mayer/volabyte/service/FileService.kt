@@ -2,7 +2,7 @@ package com.robin_mayer.volabyte.service
 
 import com.robin_mayer.volabyte.dto.request.CreateDirectoryDTO
 import com.robin_mayer.volabyte.dto.request.UploadChunkDTO
-import com.robin_mayer.volabyte.dto.response.UploadedChunkDTO
+import com.robin_mayer.volabyte.dto.response.UploadResponseDTO
 import com.robin_mayer.volabyte.entity.File
 import com.robin_mayer.volabyte.exception.ApiException
 import com.robin_mayer.volabyte.repository.FileRepository
@@ -13,12 +13,9 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import java.io.IOException
 import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.UUID
 
 @Service
 @Transactional(rollbackFor = [IOException::class])
@@ -26,12 +23,8 @@ class FileService (
     private val fileRepository: FileRepository
 ) {
 
-    @Value("\${storage.path}")
-    private lateinit var storagePath: String
-    @Value("\${storage.temp-folder}")
-    private lateinit var tempFolder: String
-    @Value("\${storage.files-folder}")
-    private lateinit var filesFolder: String
+    @Value("\${storage.uploads}")
+    private lateinit var uploadDirectory: String
 
     fun getFiles(
         ownerId: String,
@@ -65,6 +58,7 @@ class FileService (
             null,
             input.parentId,
             ownerId,
+            null
         )
 
         return fileRepository.save(newFile)
@@ -74,57 +68,54 @@ class FileService (
         ownerId: String,
         input: UploadChunkDTO,
         chunk: MultipartFile
-    ): UploadedChunkDTO {
-        val uploadId = sanitizeFileString(input.uploadId ?: UUID.randomUUID().toString())
-
-        val tempUploadPath = Paths.get(String.format("%s/%s/%s", storagePath, tempFolder, uploadId))
-        if(!Files.exists(tempUploadPath)) {
-            Files.createDirectories(tempUploadPath)
+    ): UploadResponseDTO {
+        val fileNameSanitized = sanitizeFileString(input.fileName)
+        val ownerIdSanitized = sanitizeFileString(ownerId)
+        if(ownerIdSanitized != ownerId) {
+            throw ApiException("Invalid owner ID", HttpStatus.BAD_REQUEST)
         }
 
-        val chunkIndex = tempUploadPath.toFile().listFiles()?.size
-            ?: throw ApiException("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR)
-        chunk.inputStream.use { inputStream ->
-            Files.newOutputStream(
-                tempUploadPath.resolve("chunk_${chunkIndex}.part"),
-                StandardOpenOption.CREATE
-            ).use { inputStream.copyTo(it) }
-        }
-
-        if(input.lastChunk) {
-            val referencedFileName = "${UUID.randomUUID()}__${sanitizeFileString(input.fileName)}"
-            val finalPath = getUploadDirectory(ownerId)
-            val finalFile = finalPath.resolve(referencedFileName)
-
-            val savedFile = fileRepository.save(
+        val file = if(input.fileId != null) {
+            fileRepository
+                .findByIdAndOwnerId(input.fileId, ownerId).takeIf { it?.isDirectory!! && it.uploadComplete!! }
+                ?: throw ApiException("File does not exist", HttpStatus.BAD_REQUEST)
+        } else {
+            if(input.parentId != null) {
+                verifyParentDirectory(input.parentId, ownerId)
+            }
+            val newFile = fileRepository.save(
                 File(
                     generateUniqueName(input.parentId, input.fileName, ownerId),
                     false,
-                    finalFile.toString(),
+                    "",
                     input.parentId,
                     ownerId,
+                    false
                 )
             )
-
-            Files.newOutputStream(finalFile, StandardOpenOption.CREATE).use { outputStream ->
-                for(i in 0 until chunkIndex + 1) {
-                    val chunk = tempUploadPath.resolve("chunk_${i}.part")
-                    Files.newInputStream(chunk).use { it.copyTo(outputStream) }
-                }
-            }
-
-            tempUploadPath.toFile().deleteRecursively()
-
-            return UploadedChunkDTO(
-                null,
-                savedFile
-            )
+            newFile.referencedFile = "/$ownerIdSanitized/${LocalDate.now().year}/${LocalDate.now().monthValue}/${newFile.id!!}__$fileNameSanitized"
+            fileRepository.save(newFile)
         }
 
-        return UploadedChunkDTO(
-            uploadId,
-            null
-        )
+        val uploadFolder = Paths.get("$uploadDirectory${file.referencedFile!!.substringBeforeLast('/')}")
+        uploadFolder.toFile().mkdirs()
+
+        val filePath = uploadFolder.resolve(file.referencedFile!!.substringAfterLast('/'))
+
+        Files.newOutputStream(filePath).use { outputStream ->
+            chunk.inputStream.use { inputStream ->
+                Files.newOutputStream(filePath, StandardOpenOption.CREATE, StandardOpenOption.APPEND).use { output ->
+                    inputStream.copyTo(output)
+                }
+            }
+        }
+
+        if(input.isLastChunk) {
+            file.uploadComplete = true
+            return UploadResponseDTO(file.id!!, fileRepository.save(file))
+        } else {
+            return UploadResponseDTO(file.id!!, null)
+        }
     }
 
     fun verifyParentDirectory(parentId: String, userId: String) {
@@ -159,16 +150,5 @@ class FileService (
             .replace("...", "")
             .replace("..", "")
             .replace("/", "")
-    }
-
-    fun getUploadDirectory(ownerId: String): Path {
-        val currentMonthPath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM"))
-        val uploadPath = Paths.get(
-            "${storagePath}/${filesFolder}/${sanitizeFileString(ownerId)}/${currentMonthPath}"
-        )
-        if(!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath)
-        }
-        return uploadPath
     }
 }

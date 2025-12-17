@@ -17,13 +17,13 @@ class File (
     @Column(unique = true)
     var referencedFile: String?,
     var parentId: String?,
-    var ownerId: String
+    var ownerId: String,
+    var uploadComplete: Boolean?
 ) {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     var id: String? = null
-    @Suppress("unused")
     val uploadedAt: Date = Date()
 
     fun toDTO(): FileDTO {

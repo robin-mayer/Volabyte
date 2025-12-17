@@ -20,7 +20,8 @@ class FileTest {
             isDirectory = false,
             referencedFile = "file123",
             parentId = parentId,
-            ownerId = "user123"
+            ownerId = "user123",
+            uploadComplete = true
         )
         file.id = id // Simulating ID generation, in a real scenario this would be handled by the database
 

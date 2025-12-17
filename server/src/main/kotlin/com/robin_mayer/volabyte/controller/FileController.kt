@@ -3,7 +3,7 @@ package com.robin_mayer.volabyte.controller
 import com.robin_mayer.volabyte.dto.request.CreateDirectoryDTO
 import com.robin_mayer.volabyte.dto.request.UploadChunkDTO
 import com.robin_mayer.volabyte.dto.response.FileDTO
-import com.robin_mayer.volabyte.dto.response.UploadedChunkDTO
+import com.robin_mayer.volabyte.dto.response.UploadResponseDTO
 import com.robin_mayer.volabyte.service.FileService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -44,12 +44,12 @@ class FileController (
         authentication: Authentication,
         @RequestPart uploadChunkDTO: UploadChunkDTO,
         @RequestPart chunk: MultipartFile
-    ): ResponseEntity<UploadedChunkDTO> {
-        val uploadedFile = fileService.uploadFileChunk(
+    ): ResponseEntity<UploadResponseDTO> {
+        val uploadResponse = fileService.uploadFileChunk(
             authentication.name,
             uploadChunkDTO,
             chunk
         )
-        return ResponseEntity(uploadedFile, HttpStatus.OK)
+        return ResponseEntity(uploadResponse, HttpStatus.OK)
     }
 }

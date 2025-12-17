@@ -4,18 +4,15 @@ import com.robin_mayer.volabyte.service.UserService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component
+import java.nio.file.Paths
 
 @Component
 class StartupRunner (
     private val userService: UserService
 ): CommandLineRunner {
 
-    @Value("\${storage.path}")
-    private lateinit var storagePath: String
-    @Value("\${storage.temp-folder}")
-    private lateinit var tempFolder: String
-    @Value("\${storage.files-folder}")
-    private lateinit var filesFolder: String
+    @Value("\${storage.uploads}")
+    private lateinit var uploadDirectory: String
 
     override fun run(vararg args: String?) {
         generateInitialFolderStructure()
@@ -23,8 +20,7 @@ class StartupRunner (
     }
 
     private fun generateInitialFolderStructure() {
-        java.io.File(storagePath, tempFolder).mkdirs()
-        java.io.File(storagePath, filesFolder).mkdirs()
+        Paths.get(uploadDirectory).toFile().mkdirs()
     }
 
     private fun generateInitialAdmin() {
