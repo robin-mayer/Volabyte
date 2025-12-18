@@ -77,7 +77,7 @@ class FileService (
 
         val file = if(input.fileId != null) {
             fileRepository
-                .findByIdAndOwnerId(input.fileId, ownerId).takeIf { it?.isDirectory!! && it.uploadComplete!! }
+                .findByIdAndOwnerId(input.fileId, ownerId).takeIf { !it?.isDirectory!! && !it.uploadComplete!! }
                 ?: throw ApiException("File does not exist", HttpStatus.BAD_REQUEST)
         } else {
             if(input.parentId != null) {
