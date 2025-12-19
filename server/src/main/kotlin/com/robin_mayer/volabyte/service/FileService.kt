@@ -6,6 +6,7 @@ import com.robin_mayer.volabyte.dto.response.UploadResponseDTO
 import com.robin_mayer.volabyte.entity.File
 import com.robin_mayer.volabyte.exception.ApiException
 import com.robin_mayer.volabyte.repository.FileRepository
+import com.robin_mayer.volabyte.repository.UserRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -20,7 +21,8 @@ import java.time.LocalDate
 @Service
 @Transactional(rollbackFor = [IOException::class])
 class FileService (
-    private val fileRepository: FileRepository
+    private val fileRepository: FileRepository,
+    private val userRepository: UserRepository
 ) {
 
     @Value("\${storage.uploads}")
@@ -69,15 +71,12 @@ class FileService (
         input: UploadChunkDTO,
         chunk: MultipartFile
     ): UploadResponseDTO {
-        val fileNameSanitized = sanitizeFileString(input.fileName)
-        val ownerIdSanitized = sanitizeFileString(ownerId)
-        if(ownerIdSanitized != ownerId) {
-            throw ApiException("Invalid owner ID", HttpStatus.BAD_REQUEST)
-        }
+        val ownerIdFetched = userRepository.findById(ownerId).orElseThrow { ApiException("User not found", HttpStatus.NOT_FOUND) }.id!!
+        val fileName = chunk.originalFilename ?: throw ApiException("Invalid file name", HttpStatus.BAD_REQUEST)
 
         val file = if(input.fileId != null) {
             fileRepository
-                .findByIdAndOwnerId(input.fileId, ownerId).takeIf { !it?.isDirectory!! && !it.uploadComplete!! }
+                .findByIdAndOwnerId(input.fileId, ownerIdFetched).takeIf { !it?.isDirectory!! && !it.uploadComplete!! }
                 ?: throw ApiException("File does not exist", HttpStatus.BAD_REQUEST)
         } else {
             if(input.parentId != null) {
@@ -85,36 +84,32 @@ class FileService (
             }
             val newFile = fileRepository.save(
                 File(
-                    generateUniqueName(input.parentId, input.fileName, ownerId),
+                    generateUniqueName(input.parentId, fileName, ownerId),
                     false,
                     "",
                     input.parentId,
-                    ownerId,
+                    ownerIdFetched,
                     false
                 )
             )
-            newFile.referencedFile = "/$ownerIdSanitized/${LocalDate.now().year}/${LocalDate.now().monthValue}/${newFile.id!!}__$fileNameSanitized"
+            val fileExtension = if (fileName.contains(".")) ".${fileName.substringAfterLast('.')}" else ""
+            newFile.referencedFile = "/$ownerIdFetched/${LocalDate.now().year}/${LocalDate.now().monthValue}/${newFile.id!!}$fileExtension"
             fileRepository.save(newFile)
         }
 
-        val uploadFolder = Paths.get("$uploadDirectory${file.referencedFile!!.substringBeforeLast('/')}")
-        uploadFolder.toFile().mkdirs()
-
-        val filePath = uploadFolder.resolve(file.referencedFile!!.substringAfterLast('/'))
-
-        Files.newOutputStream(filePath).use { outputStream ->
-            chunk.inputStream.use { inputStream ->
-                Files.newOutputStream(filePath, StandardOpenOption.CREATE, StandardOpenOption.APPEND).use { output ->
-                    inputStream.copyTo(output)
-                }
+        Paths.get("$uploadDirectory/${file.referencedFile!!.substring(0, 46)}").toFile().mkdirs()
+        val uploadFilePath = Paths.get("$uploadDirectory/${file.referencedFile}")
+        chunk.inputStream.use { inputStream ->
+            Files.newOutputStream(uploadFilePath, StandardOpenOption.CREATE, StandardOpenOption.APPEND).use { output ->
+                inputStream.copyTo(output)
             }
         }
 
         if(input.isLastChunk) {
             file.uploadComplete = true
-            return UploadResponseDTO(file.id!!, fileRepository.save(file))
+            return UploadResponseDTO(null, fileRepository.save(file))
         } else {
-            return UploadResponseDTO(file.id!!, null)
+            return UploadResponseDTO(file.id, null)
         }
     }
 
@@ -134,7 +129,7 @@ class FileService (
         var counter = 0
         while (true) {
             val newName = if (counter == 0) name else {
-                val fileNameWithoutExtension = name.substringBefore('.')
+                val fileNameWithoutExtension = name.substringBeforeLast('.')
                 val fileExtension = name.replace(fileNameWithoutExtension, "")
                 "$fileNameWithoutExtension ($counter)$fileExtension"
             }
