@@ -1,6 +1,6 @@
 import type { FileDTO } from "./FileDTO";
 
 export interface UploadedChunkDTO {
-  uploadId: string | null;
+  fileId: string | null;
   uploadedFile: FileDTO | null;
 }

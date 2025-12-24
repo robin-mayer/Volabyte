@@ -80,7 +80,8 @@ class Request {
 
   async uploadFileChunk(
     token: string,
-    file: File,
+    originalFileName: string,
+    chunk: File,
     parentId: string | null,
     fileId: string | null,
     isLastChunk: boolean
@@ -100,7 +101,7 @@ class Request {
       "uploadChunkDTO",
       new Blob([JSON.stringify(UploadChunkDTO)], { type: "application/json" })
     );
-    formData.append("chunk", file);
+    formData.append("chunk", chunk, originalFileName);
 
     return await fetch(this.getRequestUrl("/files/upload/chunk"), {
       method: "POST",

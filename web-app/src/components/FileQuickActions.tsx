@@ -20,30 +20,45 @@ const FileQuickActions: React.FC<{
     React.useState<boolean>(false);
   const [showSnackBar, setShowSnackbar] = React.useState<boolean>(false);
 
-  const handleFilesChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFilesChanged = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const files = event.target.files;
     if (!files) return;
 
+    const CHUNK_SIZE = 1024 * 1024;
     Array.from(files).forEach(async (file) => {
-      const response = await Request.uploadFileChunk(
-        accessToken,
-        file,
-        currentParentId,
-        null,
-        true
-      );
+      let offset = 0;
+      let fileId: string | null = null;
 
-      if (response.status === 200) {
-        const createdFile: UploadedChunkDTO = await response.json();
-        if (createdFile.uploadedFile) {
+      while (offset < file.size) {
+        const isLastChunk = offset + CHUNK_SIZE >= file.size;
+        const chunk = file.slice(offset, offset + CHUNK_SIZE);
+
+        const response = await Request.uploadFileChunk(
+          accessToken,
+          file.name,
+          chunk as File,
+          currentParentId,
+          fileId,
+          isLastChunk
+        );
+
+        if (!response.ok) {
+          throw new Error("Chunk upload failed");
+        }
+
+        const result: UploadedChunkDTO = await response.json();
+        fileId = result.fileId;
+        if (result.uploadedFile) {
           setFiles((prevFiles: FileDTO[]) =>
-            [...prevFiles, createdFile.uploadedFile!].sort((a, b) =>
+            [...prevFiles, result.uploadedFile!].sort((a, b) =>
               a.name.localeCompare(b.name)
             )
           );
         }
-      } else {
-        console.error("File upload failed");
+
+        offset += CHUNK_SIZE;
       }
     });
   };
