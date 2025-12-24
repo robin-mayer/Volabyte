@@ -82,14 +82,13 @@ class Request {
     token: string,
     file: File,
     parentId: string | null,
-    uploadId: string | null,
-    lastChunk: boolean
+    fileId: string | null,
+    isLastChunk: boolean
   ): Promise<Response> {
     const UploadChunkDTO: UploadChunkDTO = {
-      fileName: file.name,
       parentId: parentId,
-      uploadId: uploadId,
-      lastChunk: lastChunk,
+      fileId: fileId,
+      isLastChunk: isLastChunk,
     };
 
     const headers: Record<string, string> = {

@@ -1,6 +1,5 @@
 export interface UploadChunkDTO {
-  fileName: string;
   parentId: string | null;
-  uploadId: string | null;
-  lastChunk: boolean;
+  fileId: string | null;
+  isLastChunk: boolean;
 }
