@@ -1,3 +1,5 @@
+import type { UploadChunkDTO } from "../models/UploadChunkDTO";
+
 class Request {
   private readonly baseURL: string;
 
@@ -73,6 +75,38 @@ class Request {
       method: "DELETE",
       headers: headers,
       body: JSON.stringify(body),
+    });
+  }
+
+  async uploadFileChunk(
+    token: string,
+    originalFileName: string,
+    chunk: File,
+    parentId: string | null,
+    fileId: string | null,
+    isLastChunk: boolean
+  ): Promise<Response> {
+    const UploadChunkDTO: UploadChunkDTO = {
+      parentId: parentId,
+      fileId: fileId,
+      isLastChunk: isLastChunk,
+    };
+
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    const formData = new FormData();
+    formData.append(
+      "uploadChunkDTO",
+      new Blob([JSON.stringify(UploadChunkDTO)], { type: "application/json" })
+    );
+    formData.append("chunk", chunk, originalFileName);
+
+    return await fetch(this.getRequestUrl("/files/upload/chunk"), {
+      method: "POST",
+      headers: headers,
+      body: formData,
     });
   }
 }

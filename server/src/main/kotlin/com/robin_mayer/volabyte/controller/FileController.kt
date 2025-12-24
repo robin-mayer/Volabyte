@@ -1,7 +1,9 @@
 package com.robin_mayer.volabyte.controller
 
 import com.robin_mayer.volabyte.dto.request.CreateDirectoryDTO
+import com.robin_mayer.volabyte.dto.request.UploadChunkDTO
 import com.robin_mayer.volabyte.dto.response.FileDTO
+import com.robin_mayer.volabyte.dto.response.UploadResponseDTO
 import com.robin_mayer.volabyte.service.FileService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -10,7 +12,9 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
 
 @RestController
 class FileController (
@@ -23,7 +27,7 @@ class FileController (
         @PathVariable(required = false) parentId: String?
     ): ResponseEntity<List<FileDTO>> {
         val files = fileService.getFiles(authentication.name, parentId)
-        return ResponseEntity.ok(files.map { it.toDTO() })
+        return ResponseEntity(files.map { it.toDTO() }, HttpStatus.OK)
     }
 
     @PostMapping("/files/directories")
@@ -31,7 +35,21 @@ class FileController (
         authentication: Authentication,
         @RequestBody createDirectoryDTO: CreateDirectoryDTO
     ): ResponseEntity<FileDTO> {
-        val createdDirectory = fileService.createDirectory(createDirectoryDTO, authentication)
+        val createdDirectory = fileService.createDirectory(createDirectoryDTO, authentication.name)
         return ResponseEntity(createdDirectory.toDTO(), HttpStatus.CREATED)
+    }
+
+    @PostMapping("/files/upload/chunk")
+    fun uploadFile(
+        authentication: Authentication,
+        @RequestPart uploadChunkDTO: UploadChunkDTO,
+        @RequestPart chunk: MultipartFile
+    ): ResponseEntity<UploadResponseDTO> {
+        val uploadResponse = fileService.uploadFileChunk(
+            authentication.name,
+            uploadChunkDTO,
+            chunk
+        )
+        return ResponseEntity(uploadResponse, HttpStatus.OK)
     }
 }

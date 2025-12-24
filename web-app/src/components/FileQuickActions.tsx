@@ -6,15 +6,62 @@ import type { CreateDirectoryDTO } from "../models/CreateDirectoryDTO";
 import Request from "../core/Request";
 import type { FileDTO } from "../models/FileDTO";
 import { Alert, Snackbar } from "@mui/material";
+import UploadIcon from "@mui/icons-material/Upload";
+import type { UploadedChunkDTO } from "../models/UploadedChunkDTO";
 
 const FileQuickActions: React.FC<{
   accessToken: string;
   currentParentId: string | null;
   setFiles: any;
 }> = ({ accessToken, currentParentId, setFiles }) => {
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
   const [openCreateFolderDialog, setOpenCreateFolderDialog] =
     React.useState<boolean>(false);
   const [showSnackBar, setShowSnackbar] = React.useState<boolean>(false);
+
+  const handleFilesChanged = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const CHUNK_SIZE = 1024 * 1024;
+    Array.from(files).forEach(async (file) => {
+      let offset = 0;
+      let fileId: string | null = null;
+
+      while (offset < file.size) {
+        const isLastChunk = offset + CHUNK_SIZE >= file.size;
+        const chunk = file.slice(offset, offset + CHUNK_SIZE);
+
+        const response = await Request.uploadFileChunk(
+          accessToken,
+          file.name,
+          chunk as File,
+          currentParentId,
+          fileId,
+          isLastChunk
+        );
+
+        if (!response.ok) {
+          throw new Error("Chunk upload failed");
+        }
+
+        const result: UploadedChunkDTO = await response.json();
+        fileId = result.fileId;
+        if (result.uploadedFile) {
+          setFiles((prevFiles: FileDTO[]) =>
+            [...prevFiles, result.uploadedFile!].sort((a, b) =>
+              a.name.localeCompare(b.name)
+            )
+          );
+        }
+
+        offset += CHUNK_SIZE;
+      }
+    });
+  };
 
   const createDirectory = async (name: string) => {
     setOpenCreateFolderDialog(false);
@@ -44,6 +91,13 @@ const FileQuickActions: React.FC<{
       <UploadSpeedDial
         actions={[
           {
+            icon: <UploadIcon />,
+            name: "Upload files",
+            onClick: () => {
+              fileInputRef.current?.click();
+            },
+          },
+          {
             icon: <CreateNewFolderIcon />,
             name: "New Folder",
             onClick: () => {
@@ -51,6 +105,13 @@ const FileQuickActions: React.FC<{
             },
           },
         ]}
+      />
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFilesChanged}
+        style={{ display: "none" }}
+        multiple
       />
       <CreateFolderDialog
         open={openCreateFolderDialog}

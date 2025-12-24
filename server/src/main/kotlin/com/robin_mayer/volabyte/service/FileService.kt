@@ -1,19 +1,32 @@
 package com.robin_mayer.volabyte.service
 
 import com.robin_mayer.volabyte.dto.request.CreateDirectoryDTO
+import com.robin_mayer.volabyte.dto.request.UploadChunkDTO
+import com.robin_mayer.volabyte.dto.response.UploadResponseDTO
 import com.robin_mayer.volabyte.entity.File
 import com.robin_mayer.volabyte.exception.ApiException
 import com.robin_mayer.volabyte.repository.FileRepository
+import com.robin_mayer.volabyte.repository.UserRepository
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
+import java.time.LocalDate
 
 @Service
-@Transactional
+@Transactional(rollbackFor = [IOException::class])
 class FileService (
-    private val fileRepository: FileRepository
+    private val fileRepository: FileRepository,
+    private val userRepository: UserRepository
 ) {
+
+    @Value("\${storage.uploads}")
+    private lateinit var uploadDirectory: String
 
     fun getFiles(
         ownerId: String,
@@ -26,60 +39,111 @@ class FileService (
                 throw ApiException("Parent must be a directory", HttpStatus.BAD_REQUEST)
             }
         }
-        return fileRepository.findByOwnerIdAndParentIdOrderByName(ownerId, parentId)
+        return fileRepository
+            .findByOwnerIdAndParentId(ownerId, parentId)
+            .sortedWith(compareBy<File> {
+                it.name.replace(" ", "~")
+            }.thenBy { it.name })
     }
 
     fun createDirectory(
         input: CreateDirectoryDTO,
-        authentication: Authentication
+        ownerId: String
     ): File {
         if(input.parentId != null) {
-            val parentFile = fileRepository.findByIdAndOwnerId(input.parentId, authentication.name)
-                ?: throw ApiException("Parent does not exist", HttpStatus.BAD_REQUEST)
-            if (!parentFile.isDirectory) {
-                throw ApiException("Parent must be a directory", HttpStatus.BAD_REQUEST)
-            }
+            verifyParentDirectory(input.parentId, ownerId)
         }
 
         val newFile = File(
-            name = generateUniqueName(input.parentId, input.name, authentication.name),
-            isDirectory = true,
-            referencedFile = null,
-            parentId = input.parentId,
-            ownerId = authentication.name,
+            generateUniqueName(input.parentId, input.name, ownerId),
+            true,
+            null,
+            input.parentId,
+            ownerId,
+            null
         )
 
         return fileRepository.save(newFile)
     }
 
-    private fun generateUniqueName(
+    fun uploadFileChunk(
+        ownerId: String,
+        input: UploadChunkDTO,
+        chunk: MultipartFile
+    ): UploadResponseDTO {
+        val ownerIdFetched = userRepository.findById(ownerId).orElseThrow { ApiException("User not found", HttpStatus.NOT_FOUND) }.id!!
+        val fileName = chunk.originalFilename ?: throw ApiException("Invalid file name", HttpStatus.BAD_REQUEST)
+
+        val file = if(input.fileId != null) {
+            fileRepository
+                .findByIdAndOwnerId(input.fileId, ownerIdFetched).takeIf { !it?.isDirectory!! && !it.uploadComplete!! }
+                ?: throw ApiException("File does not exist", HttpStatus.BAD_REQUEST)
+        } else {
+            if(input.parentId != null) {
+                verifyParentDirectory(input.parentId, ownerId)
+            }
+            val newFile = fileRepository.save(
+                File(
+                    generateUniqueName(input.parentId, fileName, ownerId),
+                    false,
+                    "",
+                    input.parentId,
+                    ownerIdFetched,
+                    false
+                )
+            )
+            val fileExtension = if (fileName.contains(".")) ".${fileName.substringAfterLast('.')}" else ""
+            newFile.referencedFile = "/$ownerIdFetched/${LocalDate.now().year}/${LocalDate.now().monthValue}/${newFile.id!!}$fileExtension"
+            fileRepository.save(newFile)
+        }
+
+        Paths.get("$uploadDirectory/${file.referencedFile!!.substring(0, 46)}").toFile().mkdirs()
+        val uploadFilePath = Paths.get("$uploadDirectory/${file.referencedFile}")
+        chunk.inputStream.use { inputStream ->
+            Files.newOutputStream(uploadFilePath, StandardOpenOption.CREATE, StandardOpenOption.APPEND).use { output ->
+                inputStream.copyTo(output)
+            }
+        }
+
+        if(input.isLastChunk) {
+            file.uploadComplete = true
+            return UploadResponseDTO(null, fileRepository.save(file))
+        } else {
+            return UploadResponseDTO(file.id, null)
+        }
+    }
+
+    fun verifyParentDirectory(parentId: String, userId: String) {
+        val parentFile = fileRepository.findByIdAndOwnerId(parentId, userId)
+            ?: throw ApiException("Parent does not exist", HttpStatus.BAD_REQUEST)
+        if (!parentFile.isDirectory) {
+            throw ApiException("Parent must be a directory", HttpStatus.BAD_REQUEST)
+        }
+    }
+
+    fun generateUniqueName(
         parentId: String?,
         name: String,
         ownerId: String
     ): String {
-        if (
-            !fileRepository.existsByOwnerIdAndParentIdAndNameIgnoreCase(
-                ownerId,
-                parentId,
-                name
-            )
-        ) {
-            return name
-        }
-
-        var counter = 1
+        var counter = 0
         while (true) {
-            val newName = "$name ($counter)"
-            if (
-                !fileRepository.existsByOwnerIdAndParentIdAndNameIgnoreCase(
-                    ownerId,
-                    parentId,
-                    newName
-                )
-            ) {
+            val newName = if (counter == 0) name else {
+                val fileNameWithoutExtension = name.substringBeforeLast('.')
+                val fileExtension = name.replace(fileNameWithoutExtension, "")
+                "$fileNameWithoutExtension ($counter)$fileExtension"
+            }
+            if (!fileRepository.existsByOwnerIdAndParentIdAndNameIgnoreCase(ownerId, parentId, newName)) {
                 return newName
             }
             counter++
         }
+    }
+
+    fun sanitizeFileString(fileString: String): String {
+        return fileString
+            .replace("...", "")
+            .replace("..", "")
+            .replace("/", "")
     }
 }
