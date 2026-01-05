@@ -1,9 +1,10 @@
 import { Box, Divider, Typography } from "@mui/material";
-import AdminUsersSettings from "../components/AdminUsersSettings";
+import AdminUsersSettings from "./components/AdminUsersSettings";
 
-const SettingsContainer: React.FC<{ accessToken: string }> = ({
-  accessToken,
-}) => {
+const SettingsContainer: React.FC<{
+  accessToken: string;
+  setSnackbarProps: any;
+}> = ({ accessToken, setSnackbarProps }) => {
   return (
     <Box
       sx={{
@@ -17,7 +18,10 @@ const SettingsContainer: React.FC<{ accessToken: string }> = ({
         Settings
       </Typography>
       <Divider />
-      <AdminUsersSettings accessToken={accessToken} />
+      <AdminUsersSettings
+        accessToken={accessToken}
+        setSnackbarProps={setSnackbarProps}
+      />
     </Box>
   );
 };

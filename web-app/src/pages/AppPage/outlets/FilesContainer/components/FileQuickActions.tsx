@@ -1,24 +1,23 @@
 import React from "react";
-import UploadSpeedDial from "../components/UploadSpeedDial";
+import UploadSpeedDial from "./UploadSpeedDial";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
-import CreateFolderDialog from "../components/CreateFolderDialog";
-import type { CreateDirectoryDTO } from "../models/CreateDirectoryDTO";
-import Request from "../core/Request";
-import type { FileDTO } from "../models/FileDTO";
-import { Alert, Snackbar } from "@mui/material";
+import CreateFolderDialog from "./CreateFolderDialog";
+import type { CreateDirectoryDTO } from "../../../../../models/CreateDirectoryDTO";
+import Request from "../../../../../core/Request";
+import type { FileDTO } from "../../../../../models/FileDTO";
 import UploadIcon from "@mui/icons-material/Upload";
-import type { UploadedChunkDTO } from "../models/UploadedChunkDTO";
+import type { UploadedChunkDTO } from "../../../../../models/UploadedChunkDTO";
 
 const FileQuickActions: React.FC<{
   accessToken: string;
   currentParentId: string | null;
   setFiles: any;
-}> = ({ accessToken, currentParentId, setFiles }) => {
+  setSnackbarProps: any;
+}> = ({ accessToken, currentParentId, setFiles, setSnackbarProps }) => {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const [openCreateFolderDialog, setOpenCreateFolderDialog] =
     React.useState<boolean>(false);
-  const [showSnackBar, setShowSnackbar] = React.useState<boolean>(false);
 
   const handleFilesChanged = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -82,7 +81,10 @@ const FileQuickActions: React.FC<{
         [...prevFiles, createdFile].sort((a, b) => a.name.localeCompare(b.name))
       );
     } else {
-      setShowSnackbar(true);
+      setSnackbarProps({
+        message: "Something went wrong. Please try again.",
+        severity: "error",
+      });
     }
   };
 
@@ -118,19 +120,6 @@ const FileQuickActions: React.FC<{
         handleClose={() => setOpenCreateFolderDialog(false)}
         handleSubmit={createDirectory}
       />
-      <Snackbar
-        open={showSnackBar}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        autoHideDuration={2000}
-        onClose={() => setShowSnackbar(false)}
-      >
-        <Alert severity="error" variant="filled" sx={{ width: "100%" }}>
-          Something wen't wrong. Please try again later.
-        </Alert>
-      </Snackbar>
     </React.Fragment>
   );
 };

@@ -7,7 +7,6 @@ import Request from "./Request";
 class AuthUserImpl {
   async initialize(): Promise<AuthUser | null> {
     const refreshToken = LocalStorage.getRefreshToken();
-
     if (!refreshToken) {
       return null;
     }

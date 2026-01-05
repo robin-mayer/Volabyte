@@ -1,26 +1,24 @@
 import React from "react";
 import {
-  Alert,
   Avatar,
   Box,
   IconButton,
   ListItemIcon,
   Menu,
   MenuItem,
-  Snackbar,
   TextField,
 } from "@mui/material";
 import { Settings, Logout } from "@mui/icons-material";
-import type { AuthUser } from "../models/AuthUser";
-import AuthUserImpl from "../core/AuthUserImpl";
+import type { AuthUser } from "../../../models/AuthUser";
+import AuthUserImpl from "../../../core/AuthUserImpl";
 import { useNavigate } from "react-router-dom";
 
 const Header: React.FC<{
   height: number;
   authUser: AuthUser;
   setAuthUser: any;
-}> = ({ height, authUser, setAuthUser }) => {
-  const [showSnackBar, setShowSnackbar] = React.useState<boolean>(false);
+  setSnackbarProps: any;
+}> = ({ height, authUser, setAuthUser, setSnackbarProps }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -119,7 +117,10 @@ const Header: React.FC<{
                   if (result) {
                     setAuthUser(null);
                   } else {
-                    setShowSnackbar(true);
+                    setSnackbarProps({
+                      message: "Something went wrong. Please try again.",
+                      severity: "error",
+                    });
                   }
                 });
               }}
@@ -132,19 +133,6 @@ const Header: React.FC<{
           </Menu>
         </React.Fragment>
       </Box>
-      <Snackbar
-        open={showSnackBar}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        autoHideDuration={2000}
-        onClose={() => setShowSnackbar(false)}
-      >
-        <Alert severity="error" variant="filled" sx={{ width: "100%" }}>
-          Something wen't wrong. Please try again later.
-        </Alert>
-      </Snackbar>
     </React.Fragment>
   );
 };

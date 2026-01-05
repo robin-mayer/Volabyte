@@ -1,10 +1,8 @@
 import React, { useEffect } from "react";
 import {
-  Alert,
   Box,
   Button,
   Paper,
-  Snackbar,
   Table,
   TableBody,
   TableCell,
@@ -13,21 +11,20 @@ import {
   TableRow,
 } from "@mui/material";
 import Typography from "@mui/material/Typography";
-import type { UserDTO } from "../models/UserDTO";
-import Request from "../core/Request";
 import { DeleteOutline, Edit } from "@mui/icons-material";
 import AdminCreateUserDialog from "./AdminCreateUserDialog";
-import type { CreateUserDTO } from "../models/CreateUserDTO";
-import type { UserRole } from "../types/UserRole";
+import type { CreateUserDTO } from "../../../../../models/CreateUserDTO";
+import type { UserDTO } from "../../../../../models/UserDTO";
+import type { UserRole } from "../../../../../types/UserRole";
+import Request from "../../../../../core/Request";
 
-const AdminUsersSettings: React.FC<{ accessToken: string }> = ({
-  accessToken,
-}) => {
+const AdminUsersSettings: React.FC<{
+  accessToken: string;
+  setSnackbarProps: any;
+}> = ({ accessToken, setSnackbarProps }) => {
   const [users, setUsers] = React.useState<UserDTO[]>([]);
   const [openCreateUserDialog, setOpenCreateUserDialog] =
     React.useState<boolean>(false);
-  const [showSnackBar, setShowSnackbar] = React.useState<boolean>(false);
-  const [snackbarText, setSnackbarText] = React.useState<string | null>(null);
 
   useEffect(() => {
     Request.get("/users", accessToken).then((response) => {
@@ -59,12 +56,17 @@ const AdminUsersSettings: React.FC<{ accessToken: string }> = ({
       );
       setUsers(updatedUsers);
       setOpenCreateUserDialog(false);
-      setSnackbarText(`User ${createdUser.userName} created successfully.`);
+      setSnackbarProps({
+        message: `User ${createdUser.userName} created successfully.`,
+        severity: "success",
+      });
     } else {
       setOpenCreateUserDialog(false);
-      setSnackbarText("Failed to create user. Please try again.");
+      setSnackbarProps({
+        message: "Failed to create user. Please try again.",
+        severity: "error",
+      });
     }
-    setShowSnackbar(true);
   };
 
   return (
@@ -155,23 +157,6 @@ const AdminUsersSettings: React.FC<{ accessToken: string }> = ({
         handleSubmit={createUser}
         existingUsers={users}
       />
-      <Snackbar
-        open={snackbarText !== null && showSnackBar}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        autoHideDuration={2000}
-        onClose={() => setShowSnackbar(false)}
-      >
-        <Alert
-          severity={snackbarText?.startsWith("User") ? "success" : "error"}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {snackbarText}
-        </Alert>
-      </Snackbar>
     </React.Fragment>
   );
 };

@@ -1,5 +1,4 @@
 import React from "react";
-import type { UserRole } from "../types/UserRole";
 import {
   Button,
   Dialog,
@@ -12,7 +11,8 @@ import {
   Select,
   TextField,
 } from "@mui/material";
-import type { UserDTO } from "../models/UserDTO";
+import type { UserRole } from "../../../../../types/UserRole";
+import type { UserDTO } from "../../../../../models/UserDTO";
 
 const AdminCreateUserDialog: React.FC<{
   open: boolean;

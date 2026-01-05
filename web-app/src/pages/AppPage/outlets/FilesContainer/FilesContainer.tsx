@@ -1,17 +1,19 @@
 import React from "react";
-import FileQuickActions from "../components/FileQuickActions";
-import FileTable from "../components/FileTable";
-import { Alert, Box, Snackbar } from "@mui/material";
-import type { Breadcrumb } from "../types/Breadcrumb";
-import FileBreadcrumbs from "../components/FileBreadcrumbs";
-import type { FileDTO } from "../models/FileDTO";
-import Request from "../core/Request";
+import FileQuickActions from "./components/FileQuickActions";
+import { Box } from "@mui/material";
+import type { Breadcrumb } from "../../../../types/Breadcrumb";
+import FileBreadcrumbs from "./components/FileBreadcrumbs";
+import type { FileDTO } from "../../../../models/FileDTO";
+import Request from "../../../../core/Request";
+import FileTable from "./components/FileTable";
 
-const FilesContainer: React.FC<{ accessToken: string }> = ({ accessToken }) => {
+const FilesContainer: React.FC<{
+  accessToken: string;
+  setSnackbarProps: any;
+}> = ({ accessToken, setSnackbarProps }) => {
   const [breadcrumbs, setBreadcrumbs] = React.useState<Breadcrumb[]>([]);
   const [parentId, setParentId] = React.useState<string | null>(null);
   const [files, setFiles] = React.useState<FileDTO[]>([]);
-  const [showSnackBar, setShowSnackbar] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     const newParentId =
@@ -32,7 +34,10 @@ const FilesContainer: React.FC<{ accessToken: string }> = ({ accessToken }) => {
       const data: FileDTO[] = await response.json();
       setFiles(data);
     } else {
-      setShowSnackbar(true);
+      setSnackbarProps({
+        message: "Something went wrong. Please try again.",
+        severity: "error",
+      });
     }
   };
 
@@ -50,6 +55,7 @@ const FilesContainer: React.FC<{ accessToken: string }> = ({ accessToken }) => {
           accessToken={accessToken}
           currentParentId={parentId}
           setFiles={setFiles}
+          setSnackbarProps={setSnackbarProps}
         />
         <FileBreadcrumbs
           breadcrumbs={breadcrumbs}
@@ -57,19 +63,6 @@ const FilesContainer: React.FC<{ accessToken: string }> = ({ accessToken }) => {
         />
         <FileTable files={files} setBreadcrumbs={setBreadcrumbs} />
       </Box>
-      <Snackbar
-        open={showSnackBar}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        autoHideDuration={2000}
-        onClose={() => setShowSnackbar(false)}
-      >
-        <Alert severity="error" variant="filled" sx={{ width: "100%" }}>
-          Something wen't wrong. Please try again later.
-        </Alert>
-      </Snackbar>
     </React.Fragment>
   );
 };

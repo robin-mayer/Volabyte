@@ -1,25 +1,36 @@
-import { Alert, Box, Button, Paper, Snackbar, TextField } from "@mui/material";
-import { useEffect, useState } from "react";
-import Request from "../core/Request";
-import type { LoginUserDTO } from "../models/LoginUserDTO";
-import type { AuthDataDTO } from "../models/AuthDataDTO";
-import type { UserDTO } from "../models/UserDTO";
-import LocalStorage from "../core/LocalStorage";
+import { Box, Button, Paper, TextField } from "@mui/material";
+import React from "react";
+import Request from "../../core/Request";
+import type { LoginUserDTO } from "../../models/LoginUserDTO";
+import type { AuthDataDTO } from "../../models/AuthDataDTO";
+import type { UserDTO } from "../../models/UserDTO";
+import LocalStorage from "../../core/LocalStorage";
 
-const LoginPage: React.FC<{ setAuthUser: any }> = ({ setAuthUser }) => {
-  const [userNameInput, setUserNameInput] = useState<string>("");
-  const [passwordInput, setPasswordInput] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [showSnackBar, setShowSnackbar] = useState<boolean>(false);
+const LoginPage: React.FC<{ setAuthUser: any; setSnackbarProps: any }> = ({
+  setAuthUser,
+  setSnackbarProps,
+}) => {
+  const [userNameInput, setUserNameInput] = React.useState<string>("");
+  const [passwordInput, setPasswordInput] = React.useState<string>("");
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+
+  /*React.useEffect(() => {
+    console.log("Error message changed:", errorMessage);
+    if (errorMessage) {
+      console.log("Setting snackbar:", errorMessage);
+      setSnackbarProps({
+        message: errorMessage,
+        severity: "error",
+      });
+    }
+  }, [errorMessage]);*/
+  React.useEffect(() => {
+    setSnackbarProps(null);
+  }, [userNameInput, passwordInput]);
 
   const errorMessageWrongCredentials = "Invalid username or password";
   const errorMessageServerError =
     "Server is currently unavailable. Please try again later.";
-
-  useEffect(() => {
-    setErrorMessage(null);
-    setShowSnackbar(false);
-  }, [userNameInput, passwordInput]);
 
   const handleLogin = async () => {
     const loginData: LoginUserDTO = {
@@ -50,14 +61,23 @@ const LoginPage: React.FC<{ setAuthUser: any }> = ({ setAuthUser }) => {
         });
       } else {
         setErrorMessage(errorMessageServerError);
-        setShowSnackbar(true);
+        setSnackbarProps({
+          message: errorMessageServerError,
+          severity: "error",
+        });
       }
     } else if (response.status === 401) {
       setErrorMessage(errorMessageWrongCredentials);
-      setShowSnackbar(true);
+      setSnackbarProps({
+        message: errorMessageWrongCredentials,
+        severity: "error",
+      });
     } else {
       setErrorMessage(errorMessageServerError);
-      setShowSnackbar(true);
+      setSnackbarProps({
+        message: errorMessageServerError,
+        severity: "error",
+      });
     }
   };
 
@@ -112,19 +132,6 @@ const LoginPage: React.FC<{ setAuthUser: any }> = ({ setAuthUser }) => {
           </Button>
         </Paper>
       </Box>
-      <Snackbar
-        open={errorMessage != null && showSnackBar}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        autoHideDuration={2000}
-        onClose={() => setShowSnackbar(false)}
-      >
-        <Alert severity="error" variant="filled" sx={{ width: "100%" }}>
-          {errorMessage}
-        </Alert>
-      </Snackbar>
     </>
   );
 };

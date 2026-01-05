@@ -1,6 +1,6 @@
 import { SpeedDial, SpeedDialAction, SpeedDialIcon } from "@mui/material";
 import type React from "react";
-import type { SpeedDialProps } from "../props/SpeedDialProps";
+import type { SpeedDialProps } from "../interfaces/SpeedDialProps";
 
 const UploadSpeedDial: React.FC<{ actions: SpeedDialProps[] }> = ({
   actions,

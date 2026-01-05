@@ -1,14 +1,15 @@
 import React from "react";
-import Header from "../components/Header";
-import type { AuthUser } from "../models/AuthUser";
-import Sidebar from "../components/Sidebar";
+import Header from "./components/Header";
+import type { AuthUser } from "../../models/AuthUser";
+import Sidebar from "./components/Sidebar";
 import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
 
-const DashboardPage: React.FC<{ authUser: AuthUser; setAuthUser: any }> = ({
-  authUser,
-  setAuthUser,
-}) => {
+const AppPage: React.FC<{
+  authUser: AuthUser;
+  setAuthUser: any;
+  setSnackbarProps: any;
+}> = ({ authUser, setAuthUser, setSnackbarProps }) => {
   const headerHeightInRem = 4;
 
   return (
@@ -19,6 +20,7 @@ const DashboardPage: React.FC<{ authUser: AuthUser; setAuthUser: any }> = ({
           height={headerHeightInRem}
           authUser={authUser}
           setAuthUser={setAuthUser}
+          setSnackbarProps={setSnackbarProps}
         />
         <Box
           sx={{
@@ -37,4 +39,4 @@ const DashboardPage: React.FC<{ authUser: AuthUser; setAuthUser: any }> = ({
   );
 };
 
-export default DashboardPage;
+export default AppPage;
