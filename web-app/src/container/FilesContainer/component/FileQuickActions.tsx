@@ -5,10 +5,10 @@ import CreateFolderDialog from "./CreateFolderDialog";
 import UploadIcon from "@mui/icons-material/Upload";
 import type { CreateDirectoryDTO } from "../../../model/CreateDirectoryDTO";
 import type { FileDTO } from "../../../model/FileDTO";
-import type { UploadedChunkDTO } from "../../../model/UploadedChunkDTO";
 import { useAuthenticatedUser } from "../../../provider/AuthenticatedUser";
 import { useSnackbar } from "../../../provider/Snackbar";
 import RequestService from "../../../service/RequestService";
+import { useFileUploader } from "../../../provider/FileUploader";
 
 const FileQuickActions: React.FC<{
   currentParentId: string | null;
@@ -16,6 +16,7 @@ const FileQuickActions: React.FC<{
 }> = ({ currentParentId, setFiles }) => {
   const snackbar = useSnackbar();
   const authenticatedUser = useAuthenticatedUser();
+  const fileUploader = useFileUploader();
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -28,40 +29,8 @@ const FileQuickActions: React.FC<{
     const files = event.target.files;
     if (!files) return;
 
-    const CHUNK_SIZE = 1024 * 1024;
-    Array.from(files).forEach(async (file) => {
-      let offset = 0;
-      let fileId: string | null = null;
-
-      while (offset < file.size) {
-        const isLastChunk = offset + CHUNK_SIZE >= file.size;
-        const chunk = file.slice(offset, offset + CHUNK_SIZE);
-
-        const response = await RequestService.uploadFileChunk(
-          authenticatedUser.getAuthenticatedUser()?.accessToken!!,
-          file.name,
-          chunk as File,
-          currentParentId,
-          fileId,
-          isLastChunk
-        );
-
-        if (!response.ok) {
-          throw new Error("Chunk upload failed");
-        }
-
-        const result: UploadedChunkDTO = await response.json();
-        fileId = result.fileId;
-        if (result.uploadedFile) {
-          setFiles((prevFiles: FileDTO[]) =>
-            [...prevFiles, result.uploadedFile!].sort((a, b) =>
-              a.name.localeCompare(b.name)
-            )
-          );
-        }
-
-        offset += CHUNK_SIZE;
-      }
+    Array.from(files).forEach((file) => {
+      fileUploader.scheduleFile(file, currentParentId);
     });
   };
 
