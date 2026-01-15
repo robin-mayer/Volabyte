@@ -7,6 +7,7 @@ import type { UserDTO } from "../../models/UserDTO";
 import LocalStorage from "../../service/LocalStorageService";
 import { useSnackbar } from "../../provider/Snackbar";
 import { useAuthenticatedUser } from "../../provider/AuthenticatedUser";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage: React.FC<{}> = () => {
   const snackbar = useSnackbar();
