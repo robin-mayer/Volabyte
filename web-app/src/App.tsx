@@ -5,8 +5,8 @@ import AppPage from "./pages/AppPage/AppPage";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import LocalStorage from "./core/LocalStorage";
 import FilesContainer from "./pages/AppPage/outlets/FilesContainer/FilesContainer";
-import { Alert, Box, Snackbar } from "@mui/material";
-import LoadingSpinner from "./global_components/LoadingSpinner";
+import { Alert, Snackbar } from "@mui/material";
+import LoadingSpinnerBox from "./components/LoadingSpinnerBox";
 import AuthUserImpl from "./core/AuthUserImpl";
 import SettingsContainer from "./pages/AppPage/outlets/SettingsContainer.tsx/SettingsContainer";
 import type { SnackbarProps } from "./interfaces/SnackbarProps";
@@ -33,11 +33,13 @@ function App() {
         new Date(authUser.accessTokenExpiresAt).getTime() -
         new Date().getTime();
       setTimeout(() => {
-        AuthUserImpl.refresh(authUser.refreshToken).then(
-          (refreshedAuthUser) => {
-            setAuthUser(refreshedAuthUser);
-          }
-        );
+        if (authUser.refreshToken) {
+          AuthUserImpl.refresh(authUser.refreshToken).then(
+            (refreshedAuthUser) => {
+              setAuthUser(refreshedAuthUser);
+            }
+          );
+        }
       }, timeUntilExpiry - 60000); // refresh 1 minute before expiry
     }
   }, [authUser]);
@@ -50,24 +52,7 @@ function App() {
 
   return (
     <React.Fragment>
-      {loading && (
-        <Box
-          sx={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "#ffffffff",
-            zIndex: 100,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <LoadingSpinner />
-        </Box>
-      )}
+      {loading && <LoadingSpinnerBox />}
       <Snackbar
         open={snackbarOpen && snackbarProps != null}
         autoHideDuration={2000}
