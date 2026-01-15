@@ -1,7 +1,7 @@
 import React from "react";
 import FileQuickActions from "./components/FileQuickActions";
 import { Box } from "@mui/material";
-import type { Breadcrumb } from "../../../../types/Breadcrumb";
+import type { Breadcrumb } from "../../../../models/Breadcrumb";
 import FileBreadcrumbs from "./components/FileBreadcrumbs";
 import type { FileDTO } from "../../../../models/FileDTO";
 import Request from "../../../../service/RequestService";

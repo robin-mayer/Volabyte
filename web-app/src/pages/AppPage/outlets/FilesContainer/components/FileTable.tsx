@@ -11,7 +11,7 @@ import FolderIcon from "@mui/icons-material/Folder";
 import DescriptionIcon from "@mui/icons-material/Description";
 import React from "react";
 import type { FileDTO } from "../../../../../models/FileDTO";
-import type { Breadcrumb } from "../../../../../types/Breadcrumb";
+import type { Breadcrumb } from "../../../../../models/Breadcrumb";
 
 const FileTable: React.FC<{ files: FileDTO[]; setBreadcrumbs: any }> = ({
   files,
