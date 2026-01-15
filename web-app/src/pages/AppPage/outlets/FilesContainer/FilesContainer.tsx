@@ -1,9 +1,9 @@
 import React from "react";
 import FileQuickActions from "./components/FileQuickActions";
 import { Box } from "@mui/material";
-import type { Breadcrumb } from "../../../../models/Breadcrumb";
+import type { Breadcrumb } from "../../../../model/Breadcrumb";
 import FileBreadcrumbs from "./components/FileBreadcrumbs";
-import type { FileDTO } from "../../../../models/FileDTO";
+import type { FileDTO } from "../../../../model/FileDTO";
 import Request from "../../../../service/RequestService";
 import FileTable from "./components/FileTable";
 import { useSnackbar } from "../../../../provider/Snackbar";

@@ -1,9 +1,9 @@
 import { Box, Button, Paper, TextField } from "@mui/material";
 import { useState } from "react";
 import Request from "../../service/RequestService";
-import type { LoginUserDTO } from "../../models/LoginUserDTO";
-import type { AuthDataDTO } from "../../models/AuthDataDTO";
-import type { UserDTO } from "../../models/UserDTO";
+import type { LoginUserDTO } from "../../model/LoginUserDTO";
+import type { AuthDataDTO } from "../../model/AuthDataDTO";
+import type { UserDTO } from "../../model/UserDTO";
 import LocalStorage from "../../service/LocalStorageService";
 import { useSnackbar } from "../../provider/Snackbar";
 import { useAuthenticatedUser } from "../../provider/AuthenticatedUser";

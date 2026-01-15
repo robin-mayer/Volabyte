@@ -1,9 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import type { AuthUser } from "../models/AuthUser";
+import type { AuthUser } from "../model/AuthUser";
 import LocalStorageService from "../service/LocalStorageService";
 import RequestService from "../service/RequestService";
-import type { AuthDataDTO } from "../models/AuthDataDTO";
-import type { UserDTO } from "../models/UserDTO";
+import type { AuthDataDTO } from "../model/AuthDataDTO";
+import type { UserDTO } from "../model/UserDTO";
 
 type AuthUserApi = {
   getAuthenticatedUser: () => AuthUser | null;

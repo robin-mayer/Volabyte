@@ -2,11 +2,11 @@ import React from "react";
 import UploadSpeedDial from "./UploadSpeedDial";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import CreateFolderDialog from "./CreateFolderDialog";
-import type { CreateDirectoryDTO } from "../../../../../models/CreateDirectoryDTO";
+import type { CreateDirectoryDTO } from "../../../../../model/CreateDirectoryDTO";
 import Request from "../../../../../service/RequestService";
-import type { FileDTO } from "../../../../../models/FileDTO";
+import type { FileDTO } from "../../../../../model/FileDTO";
 import UploadIcon from "@mui/icons-material/Upload";
-import type { UploadedChunkDTO } from "../../../../../models/UploadedChunkDTO";
+import type { UploadedChunkDTO } from "../../../../../model/UploadedChunkDTO";
 import { useSnackbar } from "../../../../../provider/Snackbar";
 import { useAuthenticatedUser } from "../../../../../provider/AuthenticatedUser";
 

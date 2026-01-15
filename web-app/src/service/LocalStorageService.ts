@@ -1,5 +1,5 @@
-import type { AuthUser } from "../models/AuthUser";
-import type { RefreshTokenData } from "../models/RefreshTokenData";
+import type { AuthUser } from "../model/AuthUser";
+import type { RefreshTokenData } from "../model/RefreshTokenData";
 
 class LocalStorageService {
   getRefreshToken(): string | null {

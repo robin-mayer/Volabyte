@@ -11,8 +11,8 @@ import {
   Select,
   TextField,
 } from "@mui/material";
-import type { UserRole } from "../../../../../models/UserRole";
-import type { UserDTO } from "../../../../../models/UserDTO";
+import type { UserRole } from "../../../../../model/UserRole";
+import type { UserDTO } from "../../../../../model/UserDTO";
 
 const AdminCreateUserDialog: React.FC<{
   open: boolean;

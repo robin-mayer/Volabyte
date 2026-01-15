@@ -13,9 +13,9 @@ import {
 import Typography from "@mui/material/Typography";
 import { DeleteOutline, Edit } from "@mui/icons-material";
 import AdminCreateUserDialog from "./AdminCreateUserDialog";
-import type { CreateUserDTO } from "../../../../../models/CreateUserDTO";
-import type { UserDTO } from "../../../../../models/UserDTO";
-import type { UserRole } from "../../../../../models/UserRole";
+import type { CreateUserDTO } from "../../../../../model/CreateUserDTO";
+import type { UserDTO } from "../../../../../model/UserDTO";
+import type { UserRole } from "../../../../../model/UserRole";
 import Request from "../../../../../service/RequestService";
 import { useSnackbar } from "../../../../../provider/Snackbar";
 import { useAuthenticatedUser } from "../../../../../provider/AuthenticatedUser";

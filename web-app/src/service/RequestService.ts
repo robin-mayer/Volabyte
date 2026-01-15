@@ -1,4 +1,4 @@
-import type { UploadChunkDTO } from "../models/UploadChunkDTO";
+import type { UploadChunkDTO } from "../model/UploadChunkDTO";
 
 class RequestService {
   private readonly baseURL: string;
