@@ -16,7 +16,7 @@ import AdminCreateUserDialog from "./AdminCreateUserDialog";
 import type { CreateUserDTO } from "../../../../../models/CreateUserDTO";
 import type { UserDTO } from "../../../../../models/UserDTO";
 import type { UserRole } from "../../../../../types/UserRole";
-import Request from "../../../../../service/Request";
+import Request from "../../../../../service/RequestService";
 import { useSnackbar } from "../../../../../provider/Snackbar";
 import { useAuthenticatedUser } from "../../../../../provider/AuthenticatedUser";
 

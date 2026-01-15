@@ -9,15 +9,12 @@ import {
   TextField,
 } from "@mui/material";
 import { Settings, Logout } from "@mui/icons-material";
-import AuthUserImpl from "../../../service/AuthenticationService";
 import { useNavigate } from "react-router-dom";
-import { useSnackbar } from "../../../provider/Snackbar";
 import { useAuthenticatedUser } from "../../../provider/AuthenticatedUser";
 
 const Header: React.FC<{
   height: number;
 }> = ({ height }) => {
-  const snackbar = useSnackbar();
   const authenticatedUser = useAuthenticatedUser();
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -117,18 +114,7 @@ const Header: React.FC<{
             <MenuItem
               onClick={() => {
                 handleClose();
-                AuthUserImpl.logout(
-                  authenticatedUser.getAuthenticatedUser()?.accessToken!!
-                ).then((result) => {
-                  if (result) {
-                    authenticatedUser.removeAuthenticatedUser();
-                  } else {
-                    snackbar.show(
-                      "Something went wrong. Please try again.",
-                      "error"
-                    );
-                  }
-                });
+                authenticatedUser.removeAuthenticatedUser();
               }}
             >
               <ListItemIcon>

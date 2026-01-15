@@ -3,7 +3,7 @@ import UploadSpeedDial from "./UploadSpeedDial";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import CreateFolderDialog from "./CreateFolderDialog";
 import type { CreateDirectoryDTO } from "../../../../../models/CreateDirectoryDTO";
-import Request from "../../../../../service/Request";
+import Request from "../../../../../service/RequestService";
 import type { FileDTO } from "../../../../../models/FileDTO";
 import UploadIcon from "@mui/icons-material/Upload";
 import type { UploadedChunkDTO } from "../../../../../models/UploadedChunkDTO";

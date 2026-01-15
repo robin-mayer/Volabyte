@@ -4,7 +4,7 @@ import { Box } from "@mui/material";
 import type { Breadcrumb } from "../../../../types/Breadcrumb";
 import FileBreadcrumbs from "./components/FileBreadcrumbs";
 import type { FileDTO } from "../../../../models/FileDTO";
-import Request from "../../../../service/Request";
+import Request from "../../../../service/RequestService";
 import FileTable from "./components/FileTable";
 import { useSnackbar } from "../../../../provider/Snackbar";
 import { useAuthenticatedUser } from "../../../../provider/AuthenticatedUser";

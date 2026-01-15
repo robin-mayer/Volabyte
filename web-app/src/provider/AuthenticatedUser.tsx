@@ -1,7 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { AuthUser } from "../models/AuthUser";
 import LocalStorageService from "../service/LocalStorageService";
-import AuthenticationService from "../service/AuthenticationService";
+import RequestService from "../service/RequestService";
+import type { AuthDataDTO } from "../models/AuthDataDTO";
+import type { UserDTO } from "../models/UserDTO";
 
 type AuthUserApi = {
   getAuthenticatedUser: () => AuthUser | null;
@@ -21,13 +23,106 @@ export const useAuthenticatedUser = () => {
   return context;
 };
 
+async function initialize(): Promise<AuthUser | null> {
+  const refreshToken = LocalStorageService.getRefreshToken();
+  if (!refreshToken) {
+    return null;
+  }
+
+  const refreshResponse = await RequestService.post(
+    "/users/session/refresh",
+    null,
+    {
+      refreshToken: refreshToken,
+    }
+  );
+  if (!refreshResponse.ok) {
+    LocalStorageService.deleteRefreshToken();
+    return null;
+  }
+  const authData: AuthDataDTO = await refreshResponse.json();
+
+  const userResponse = await RequestService.get(
+    "/users/self",
+    authData.accessToken
+  );
+  if (!userResponse.ok) {
+    return null;
+  }
+  const user: UserDTO = await userResponse.json();
+
+  const authUser: AuthUser = {
+    accessToken: authData.accessToken,
+    accessTokenExpiresAt: authData.accessTokenExpiresAt,
+    refreshToken: authData.refreshToken,
+    refreshTokenExpiresAt: authData.refreshTokenExpiresAt,
+    id: user.id,
+    userName: user.userName,
+    displayName: user.displayName,
+    role: user.role,
+  };
+  return authUser;
+}
+
+async function refresh(refreshToken: string): Promise<AuthUser | null> {
+  const refreshResponse = await RequestService.post(
+    "/users/session/refresh",
+    null,
+    {
+      refreshToken: refreshToken,
+    }
+  );
+  if (!refreshResponse.ok) {
+    LocalStorageService.deleteRefreshToken();
+    return null;
+  }
+  const authData: AuthDataDTO = await refreshResponse.json();
+
+  const userResponse = await RequestService.get(
+    "/users/self",
+    authData.accessToken
+  );
+  if (!userResponse.ok) {
+    return null;
+  }
+  const user: UserDTO = await userResponse.json();
+
+  const authUser: AuthUser = {
+    accessToken: authData.accessToken,
+    accessTokenExpiresAt: authData.accessTokenExpiresAt,
+    refreshToken: authData.refreshToken,
+    refreshTokenExpiresAt: authData.refreshTokenExpiresAt,
+    id: user.id,
+    userName: user.userName,
+    displayName: user.displayName,
+    role: user.role,
+  };
+  return authUser;
+}
+
+async function logout(accessToken: string): Promise<boolean> {
+  const response = await RequestService.post("/users/logout", accessToken, {
+    deviceId: LocalStorageService.getDeviceId(),
+  });
+
+  if (
+    response.status === 204 ||
+    response.status === 401 ||
+    response.status === 403
+  ) {
+    LocalStorageService.deleteRefreshToken();
+    return true;
+  }
+  return false;
+}
+
 export const AuthenticatedUserProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
-    AuthenticationService.initialize().then((result) => {
+    initialize().then((result) => {
       if (result) {
         setAuthUser(result);
       }
@@ -43,11 +138,9 @@ export const AuthenticatedUserProvider: React.FC<{
         new Date().getTime();
       setTimeout(() => {
         if (authUser.refreshToken) {
-          AuthenticationService.refresh(authUser.refreshToken).then(
-            (refreshedAuthUser) => {
-              setAuthUser(refreshedAuthUser);
-            }
-          );
+          refresh(authUser.refreshToken).then((refreshedAuthUser) => {
+            setAuthUser(refreshedAuthUser);
+          });
         }
       }, timeUntilExpiry - 60000);
     }
@@ -56,7 +149,15 @@ export const AuthenticatedUserProvider: React.FC<{
   const api: AuthUserApi = {
     getAuthenticatedUser: () => authUser,
     setAuthenticatedUser: (user: AuthUser) => setAuthUser(user),
-    removeAuthenticatedUser: () => setAuthUser(null),
+    removeAuthenticatedUser: () => {
+      if (authUser?.accessToken) {
+        logout(authUser.accessToken).then(() => {
+          setAuthUser(null);
+        });
+      } else {
+        setAuthUser(null);
+      }
+    },
   };
 
   return (

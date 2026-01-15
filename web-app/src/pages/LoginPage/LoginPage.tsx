@@ -1,6 +1,6 @@
 import { Box, Button, Paper, TextField } from "@mui/material";
 import { useState } from "react";
-import Request from "../../service/Request";
+import Request from "../../service/RequestService";
 import type { LoginUserDTO } from "../../models/LoginUserDTO";
 import type { AuthDataDTO } from "../../models/AuthDataDTO";
 import type { UserDTO } from "../../models/UserDTO";
