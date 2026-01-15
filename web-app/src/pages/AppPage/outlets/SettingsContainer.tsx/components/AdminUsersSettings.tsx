@@ -16,18 +16,23 @@ import AdminCreateUserDialog from "./AdminCreateUserDialog";
 import type { CreateUserDTO } from "../../../../../models/CreateUserDTO";
 import type { UserDTO } from "../../../../../models/UserDTO";
 import type { UserRole } from "../../../../../types/UserRole";
-import Request from "../../../../../core/Request";
+import Request from "../../../../../service/Request";
+import { useSnackbar } from "../../../../../provider/Snackbar";
+import { useAuthenticatedUser } from "../../../../../provider/AuthenticatedUser";
 
-const AdminUsersSettings: React.FC<{
-  accessToken: string;
-  setSnackbarProps: any;
-}> = ({ accessToken, setSnackbarProps }) => {
+const AdminUsersSettings = () => {
+  const snackbar = useSnackbar();
+  const authenticatedUser = useAuthenticatedUser();
+
   const [users, setUsers] = React.useState<UserDTO[]>([]);
   const [openCreateUserDialog, setOpenCreateUserDialog] =
     React.useState<boolean>(false);
 
   useEffect(() => {
-    Request.get("/users", accessToken).then((response) => {
+    Request.get(
+      "/users",
+      authenticatedUser.getAuthenticatedUser()?.accessToken!!
+    ).then((response) => {
       if (response.status === 200) {
         response.json().then((data: UserDTO[]) => {
           setUsers(data);
@@ -48,7 +53,11 @@ const AdminUsersSettings: React.FC<{
       password,
       role: role,
     };
-    const response = await Request.post("/users", accessToken, createUserDTO);
+    const response = await Request.post(
+      "/users",
+      authenticatedUser.getAuthenticatedUser()?.accessToken!!,
+      createUserDTO
+    );
     if (response.status === 201) {
       const createdUser: UserDTO = await response.json();
       const updatedUsers = [...users, createdUser].sort((a, b) =>
@@ -56,16 +65,10 @@ const AdminUsersSettings: React.FC<{
       );
       setUsers(updatedUsers);
       setOpenCreateUserDialog(false);
-      setSnackbarProps({
-        message: `User ${createdUser.userName} created successfully.`,
-        severity: "success",
-      });
+      snackbar.show("User created successfully.", "success");
     } else {
       setOpenCreateUserDialog(false);
-      setSnackbarProps({
-        message: "Failed to create user. Please try again.",
-        severity: "error",
-      });
+      snackbar.show("Failed to create user. Please try again.", "error");
     }
   };
 

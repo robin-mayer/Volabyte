@@ -1,10 +1,10 @@
 import type { AuthDataDTO } from "../models/AuthDataDTO";
 import type { AuthUser } from "../models/AuthUser";
 import type { UserDTO } from "../models/UserDTO";
-import LocalStorage from "./LocalStorage";
+import LocalStorage from "./LocalStorageService";
 import Request from "./Request";
 
-class AuthUserImpl {
+class AuthenticationService {
   async initialize(): Promise<AuthUser | null> {
     const refreshToken = LocalStorage.getRefreshToken();
     if (!refreshToken) {
@@ -85,4 +85,4 @@ class AuthUserImpl {
   }
 }
 
-export default new AuthUserImpl();
+export default new AuthenticationService();

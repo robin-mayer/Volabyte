@@ -1,27 +1,16 @@
-import React from "react";
 import Header from "./components/Header";
-import type { AuthUser } from "../../models/AuthUser";
 import Sidebar from "./components/Sidebar";
 import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
 
-const AppPage: React.FC<{
-  authUser: AuthUser;
-  setAuthUser: any;
-  setSnackbarProps: any;
-}> = ({ authUser, setAuthUser, setSnackbarProps }) => {
+const AppPage = () => {
   const headerHeightInRem = 4;
 
   return (
     <Box sx={{ display: "flex", height: "100vh" }}>
       <Sidebar height={headerHeightInRem} />
       <Box sx={{ width: "100%" }}>
-        <Header
-          height={headerHeightInRem}
-          authUser={authUser}
-          setAuthUser={setAuthUser}
-          setSnackbarProps={setSnackbarProps}
-        />
+        <Header height={headerHeightInRem} />
         <Box
           sx={{
             width: "100%",

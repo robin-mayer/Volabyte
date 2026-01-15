@@ -1,32 +1,20 @@
 import { Box, Button, Paper, TextField } from "@mui/material";
-import React from "react";
-import Request from "../../core/Request";
+import { useState } from "react";
+import Request from "../../service/Request";
 import type { LoginUserDTO } from "../../models/LoginUserDTO";
 import type { AuthDataDTO } from "../../models/AuthDataDTO";
 import type { UserDTO } from "../../models/UserDTO";
-import LocalStorage from "../../core/LocalStorage";
+import LocalStorage from "../../service/LocalStorageService";
+import { useSnackbar } from "../../provider/Snackbar";
+import { useAuthenticatedUser } from "../../provider/AuthenticatedUser";
 
-const LoginPage: React.FC<{ setAuthUser: any; setSnackbarProps: any }> = ({
-  setAuthUser,
-  setSnackbarProps,
-}) => {
-  const [userNameInput, setUserNameInput] = React.useState<string>("");
-  const [passwordInput, setPasswordInput] = React.useState<string>("");
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+const LoginPage: React.FC<{}> = () => {
+  const snackbar = useSnackbar();
+  const authenticatedUser = useAuthenticatedUser();
 
-  /*React.useEffect(() => {
-    console.log("Error message changed:", errorMessage);
-    if (errorMessage) {
-      console.log("Setting snackbar:", errorMessage);
-      setSnackbarProps({
-        message: errorMessage,
-        severity: "error",
-      });
-    }
-  }, [errorMessage]);*/
-  React.useEffect(() => {
-    setSnackbarProps(null);
-  }, [userNameInput, passwordInput]);
+  const [userNameInput, setUserNameInput] = useState<string>("");
+  const [passwordInput, setPasswordInput] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const errorMessageWrongCredentials = "Invalid username or password";
   const errorMessageServerError =
@@ -49,7 +37,7 @@ const LoginPage: React.FC<{ setAuthUser: any; setSnackbarProps: any }> = ({
       );
       if (selfResponse.status === 200) {
         const user: UserDTO = await selfResponse.json();
-        setAuthUser({
+        authenticatedUser.setAuthenticatedUser({
           accessToken: authData.accessToken,
           accessTokenExpiresAt: authData.accessTokenExpiresAt,
           refreshToken: authData.refreshToken,
@@ -61,23 +49,14 @@ const LoginPage: React.FC<{ setAuthUser: any; setSnackbarProps: any }> = ({
         });
       } else {
         setErrorMessage(errorMessageServerError);
-        setSnackbarProps({
-          message: errorMessageServerError,
-          severity: "error",
-        });
+        snackbar.show(errorMessageServerError, "error");
       }
     } else if (response.status === 401) {
       setErrorMessage(errorMessageWrongCredentials);
-      setSnackbarProps({
-        message: errorMessageWrongCredentials,
-        severity: "error",
-      });
+      snackbar.show(errorMessageWrongCredentials, "error");
     } else {
       setErrorMessage(errorMessageServerError);
-      setSnackbarProps({
-        message: errorMessageServerError,
-        severity: "error",
-      });
+      snackbar.show(errorMessageServerError, "error");
     }
   };
 

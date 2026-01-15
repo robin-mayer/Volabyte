@@ -3,17 +3,20 @@ import UploadSpeedDial from "./UploadSpeedDial";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import CreateFolderDialog from "./CreateFolderDialog";
 import type { CreateDirectoryDTO } from "../../../../../models/CreateDirectoryDTO";
-import Request from "../../../../../core/Request";
+import Request from "../../../../../service/Request";
 import type { FileDTO } from "../../../../../models/FileDTO";
 import UploadIcon from "@mui/icons-material/Upload";
 import type { UploadedChunkDTO } from "../../../../../models/UploadedChunkDTO";
+import { useSnackbar } from "../../../../../provider/Snackbar";
+import { useAuthenticatedUser } from "../../../../../provider/AuthenticatedUser";
 
 const FileQuickActions: React.FC<{
-  accessToken: string;
   currentParentId: string | null;
   setFiles: any;
-  setSnackbarProps: any;
-}> = ({ accessToken, currentParentId, setFiles, setSnackbarProps }) => {
+}> = ({ currentParentId, setFiles }) => {
+  const snackbar = useSnackbar();
+  const authenticatedUser = useAuthenticatedUser();
+
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const [openCreateFolderDialog, setOpenCreateFolderDialog] =
@@ -35,7 +38,7 @@ const FileQuickActions: React.FC<{
         const chunk = file.slice(offset, offset + CHUNK_SIZE);
 
         const response = await Request.uploadFileChunk(
-          accessToken,
+          authenticatedUser.getAuthenticatedUser()?.accessToken!!,
           file.name,
           chunk as File,
           currentParentId,
@@ -72,7 +75,7 @@ const FileQuickActions: React.FC<{
 
     const response = await Request.post(
       "/files/directories",
-      accessToken,
+      authenticatedUser.getAuthenticatedUser()?.accessToken!!,
       createDirectoryData
     );
     if (response.status === 201) {
@@ -81,10 +84,7 @@ const FileQuickActions: React.FC<{
         [...prevFiles, createdFile].sort((a, b) => a.name.localeCompare(b.name))
       );
     } else {
-      setSnackbarProps({
-        message: "Something went wrong. Please try again.",
-        severity: "error",
-      });
+      snackbar.show("Something went wrong. Please try again.", "error");
     }
   };
 

@@ -4,13 +4,15 @@ import { Box } from "@mui/material";
 import type { Breadcrumb } from "../../../../types/Breadcrumb";
 import FileBreadcrumbs from "./components/FileBreadcrumbs";
 import type { FileDTO } from "../../../../models/FileDTO";
-import Request from "../../../../core/Request";
+import Request from "../../../../service/Request";
 import FileTable from "./components/FileTable";
+import { useSnackbar } from "../../../../provider/Snackbar";
+import { useAuthenticatedUser } from "../../../../provider/AuthenticatedUser";
 
-const FilesContainer: React.FC<{
-  accessToken: string;
-  setSnackbarProps: any;
-}> = ({ accessToken, setSnackbarProps }) => {
+const FilesContainer = () => {
+  const snackbar = useSnackbar();
+  const authenticatedUser = useAuthenticatedUser();
+
   const [breadcrumbs, setBreadcrumbs] = React.useState<Breadcrumb[]>([]);
   const [parentId, setParentId] = React.useState<string | null>(null);
   const [files, setFiles] = React.useState<FileDTO[]>([]);
@@ -29,15 +31,15 @@ const FilesContainer: React.FC<{
 
   const fetchFiles = async () => {
     const requestPath = parentId ? `/files/${parentId}/list` : `/files/list`;
-    const response = await Request.get(requestPath, accessToken);
+    const response = await Request.get(
+      requestPath,
+      authenticatedUser.getAuthenticatedUser()?.accessToken!!
+    );
     if (response.status === 200) {
       const data: FileDTO[] = await response.json();
       setFiles(data);
     } else {
-      setSnackbarProps({
-        message: "Something went wrong. Please try again.",
-        severity: "error",
-      });
+      snackbar.show("Something went wrong. Please try again.", "error");
     }
   };
 
@@ -51,12 +53,7 @@ const FilesContainer: React.FC<{
           gap: "1rem",
         }}
       >
-        <FileQuickActions
-          accessToken={accessToken}
-          currentParentId={parentId}
-          setFiles={setFiles}
-          setSnackbarProps={setSnackbarProps}
-        />
+        <FileQuickActions currentParentId={parentId} setFiles={setFiles} />
         <FileBreadcrumbs
           breadcrumbs={breadcrumbs}
           setBreadcrumbs={setBreadcrumbs}

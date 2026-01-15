@@ -1,11 +1,11 @@
 import { createContext, useContext, useState } from "react";
 import { Alert, Snackbar } from "@mui/material";
 
-export type SnackbarAPI = {
+type SnackbarAPI = {
   show: (message: string, severity: "success" | "error") => void;
 };
 
-export const SnackbarContext = createContext<SnackbarAPI | null>(null);
+const SnackbarContext = createContext<SnackbarAPI | null>(null);
 
 export const useSnackbar = () => {
   const context = useContext(SnackbarContext);
@@ -18,6 +18,7 @@ export const useSnackbar = () => {
 export const SnackbarProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const [open, setOpen] = useState<boolean>(false);
   const [message, setMessage] = useState<string | null>(null);
   const [severity, setSeverity] = useState<"success" | "error">("error");
 
@@ -25,24 +26,23 @@ export const SnackbarProvider: React.FC<{ children: React.ReactNode }> = ({
     show: (msg: string, severity: "success" | "error") => {
       setMessage(msg);
       setSeverity(severity);
+      setOpen(true);
     },
   };
 
   return (
     <SnackbarContext.Provider value={api}>
       {children}
-      {message && (
-        <Snackbar
-          open={message != null}
-          autoHideDuration={2000}
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-          onClose={() => setMessage(null)}
-        >
-          <Alert severity={severity} variant="filled" sx={{ width: "100%" }}>
-            {message}
-          </Alert>
-        </Snackbar>
-      )}
+      <Snackbar
+        open={open}
+        autoHideDuration={2000}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        onClose={() => setOpen(false)}
+      >
+        <Alert severity={severity} variant="filled" sx={{ width: "100%" }}>
+          {message}
+        </Alert>
+      </Snackbar>
     </SnackbarContext.Provider>
   );
 };

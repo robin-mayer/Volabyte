@@ -9,16 +9,17 @@ import {
   TextField,
 } from "@mui/material";
 import { Settings, Logout } from "@mui/icons-material";
-import type { AuthUser } from "../../../models/AuthUser";
-import AuthUserImpl from "../../../core/AuthUserImpl";
+import AuthUserImpl from "../../../service/AuthenticationService";
 import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "../../../provider/Snackbar";
+import { useAuthenticatedUser } from "../../../provider/AuthenticatedUser";
 
 const Header: React.FC<{
   height: number;
-  authUser: AuthUser;
-  setAuthUser: any;
-  setSnackbarProps: any;
-}> = ({ height, authUser, setAuthUser, setSnackbarProps }) => {
+}> = ({ height }) => {
+  const snackbar = useSnackbar();
+  const authenticatedUser = useAuthenticatedUser();
+
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -57,7 +58,10 @@ const Header: React.FC<{
             aria-expanded={open ? "true" : undefined}
           >
             <Avatar sx={{ width: 40, height: 40 }}>
-              {authUser.displayName.charAt(0).toUpperCase()}
+              {authenticatedUser
+                .getAuthenticatedUser()
+                ?.displayName.charAt(0)
+                .toUpperCase()}
             </Avatar>
           </IconButton>
           <Menu
@@ -97,7 +101,7 @@ const Header: React.FC<{
             transformOrigin={{ horizontal: "right", vertical: "top" }}
             anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
           >
-            {authUser.role === "ADMIN" && (
+            {authenticatedUser.getAuthenticatedUser()?.role === "ADMIN" && (
               <MenuItem
                 onClick={() => {
                   handleClose();
@@ -113,14 +117,16 @@ const Header: React.FC<{
             <MenuItem
               onClick={() => {
                 handleClose();
-                AuthUserImpl.logout(authUser.accessToken).then((result) => {
+                AuthUserImpl.logout(
+                  authenticatedUser.getAuthenticatedUser()?.accessToken!!
+                ).then((result) => {
                   if (result) {
-                    setAuthUser(null);
+                    authenticatedUser.removeAuthenticatedUser();
                   } else {
-                    setSnackbarProps({
-                      message: "Something went wrong. Please try again.",
-                      severity: "error",
-                    });
+                    snackbar.show(
+                      "Something went wrong. Please try again.",
+                      "error"
+                    );
                   }
                 });
               }}
