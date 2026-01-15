@@ -2,13 +2,13 @@ import React from "react";
 import UploadSpeedDial from "./UploadSpeedDial";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import CreateFolderDialog from "./CreateFolderDialog";
-import type { CreateDirectoryDTO } from "../../../../../model/CreateDirectoryDTO";
-import Request from "../../../../../service/RequestService";
-import type { FileDTO } from "../../../../../model/FileDTO";
 import UploadIcon from "@mui/icons-material/Upload";
-import type { UploadedChunkDTO } from "../../../../../model/UploadedChunkDTO";
-import { useSnackbar } from "../../../../../provider/Snackbar";
-import { useAuthenticatedUser } from "../../../../../provider/AuthenticatedUser";
+import type { CreateDirectoryDTO } from "../../../model/CreateDirectoryDTO";
+import type { FileDTO } from "../../../model/FileDTO";
+import type { UploadedChunkDTO } from "../../../model/UploadedChunkDTO";
+import { useAuthenticatedUser } from "../../../provider/AuthenticatedUser";
+import { useSnackbar } from "../../../provider/Snackbar";
+import RequestService from "../../../service/RequestService";
 
 const FileQuickActions: React.FC<{
   currentParentId: string | null;
@@ -37,7 +37,7 @@ const FileQuickActions: React.FC<{
         const isLastChunk = offset + CHUNK_SIZE >= file.size;
         const chunk = file.slice(offset, offset + CHUNK_SIZE);
 
-        const response = await Request.uploadFileChunk(
+        const response = await RequestService.uploadFileChunk(
           authenticatedUser.getAuthenticatedUser()?.accessToken!!,
           file.name,
           chunk as File,
@@ -73,7 +73,7 @@ const FileQuickActions: React.FC<{
       name,
     };
 
-    const response = await Request.post(
+    const response = await RequestService.post(
       "/files/directories",
       authenticatedUser.getAuthenticatedUser()?.accessToken!!,
       createDirectoryData

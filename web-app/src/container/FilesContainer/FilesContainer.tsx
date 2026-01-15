@@ -1,13 +1,13 @@
 import React from "react";
-import FileQuickActions from "./components/FileQuickActions";
+import FileQuickActions from "./component/FileQuickActions";
 import { Box } from "@mui/material";
-import type { Breadcrumb } from "../../../../model/Breadcrumb";
-import FileBreadcrumbs from "./components/FileBreadcrumbs";
-import type { FileDTO } from "../../../../model/FileDTO";
-import Request from "../../../../service/RequestService";
-import FileTable from "./components/FileTable";
-import { useSnackbar } from "../../../../provider/Snackbar";
-import { useAuthenticatedUser } from "../../../../provider/AuthenticatedUser";
+import FileBreadcrumbs from "./component/FileBreadcrumbs";
+import FileTable from "./component/FileTable";
+import type { Breadcrumb } from "../../model/Breadcrumb";
+import type { FileDTO } from "../../model/FileDTO";
+import { useAuthenticatedUser } from "../../provider/AuthenticatedUser";
+import { useSnackbar } from "../../provider/Snackbar";
+import RequestService from "../../service/RequestService";
 
 const FilesContainer = () => {
   const snackbar = useSnackbar();
@@ -31,7 +31,7 @@ const FilesContainer = () => {
 
   const fetchFiles = async () => {
     const requestPath = parentId ? `/files/${parentId}/list` : `/files/list`;
-    const response = await Request.get(
+    const response = await RequestService.get(
       requestPath,
       authenticatedUser.getAuthenticatedUser()?.accessToken!!
     );

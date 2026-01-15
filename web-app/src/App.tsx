@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import AppPage from "./pages/AppPage/AppPage";
-import LoginPage from "./pages/LoginPage/LoginPage";
-import FilesContainer from "./pages/AppPage/outlets/FilesContainer/FilesContainer";
-import SettingsContainer from "./pages/AppPage/outlets/SettingsContainer.tsx/SettingsContainer";
+import AppPage from "./page/AppPage/AppPage";
+import LoginPage from "./page/LoginPage/LoginPage";
 import { RouteGuard } from "./component/RouteGuard";
 import { useAuthenticatedUser } from "./provider/AuthenticatedUser";
+import FilesContainer from "./container/FilesContainer/FilesContainer";
+import SettingsContainer from "./container/SettingsContainer/SettingsContainer";
 
 function App() {
   const authenticatedUser = useAuthenticatedUser();

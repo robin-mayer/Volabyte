@@ -13,13 +13,12 @@ import {
 import Typography from "@mui/material/Typography";
 import { DeleteOutline, Edit } from "@mui/icons-material";
 import AdminCreateUserDialog from "./AdminCreateUserDialog";
-import type { CreateUserDTO } from "../../../../../model/CreateUserDTO";
-import type { UserDTO } from "../../../../../model/UserDTO";
-import type { UserRole } from "../../../../../model/UserRole";
-import Request from "../../../../../service/RequestService";
-import { useSnackbar } from "../../../../../provider/Snackbar";
-import { useAuthenticatedUser } from "../../../../../provider/AuthenticatedUser";
-
+import type { CreateUserDTO } from "../../../model/CreateUserDTO";
+import type { UserDTO } from "../../../model/UserDTO";
+import type { UserRole } from "../../../model/UserRole";
+import { useAuthenticatedUser } from "../../../provider/AuthenticatedUser";
+import { useSnackbar } from "../../../provider/Snackbar";
+import RequestService from "../../../service/RequestService";
 const AdminUsersSettings = () => {
   const snackbar = useSnackbar();
   const authenticatedUser = useAuthenticatedUser();
@@ -29,7 +28,7 @@ const AdminUsersSettings = () => {
     React.useState<boolean>(false);
 
   useEffect(() => {
-    Request.get(
+    RequestService.get(
       "/users",
       authenticatedUser.getAuthenticatedUser()?.accessToken!!
     ).then((response) => {

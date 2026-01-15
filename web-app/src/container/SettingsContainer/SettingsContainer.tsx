@@ -1,5 +1,5 @@
 import { Box, Divider, Typography } from "@mui/material";
-import AdminUsersSettings from "./components/AdminUsersSettings";
+import AdminUsersSettings from "./component/AdminUsersSettings";
 
 const SettingsContainer = () => {
   return (
