@@ -1,13 +1,12 @@
 import { Box, Button, Paper, TextField } from "@mui/material";
 import { useState } from "react";
-import Request from "../../service/RequestService";
 import type { LoginUserDTO } from "../../model/LoginUserDTO";
 import type { AuthDataDTO } from "../../model/AuthDataDTO";
 import type { UserDTO } from "../../model/UserDTO";
 import LocalStorage from "../../service/LocalStorageService";
 import { useSnackbar } from "../../provider/Snackbar";
 import { useAuthenticatedUser } from "../../provider/AuthenticatedUser";
-import { useNavigate } from "react-router-dom";
+import RequestService from "../../service/RequestService";
 
 const LoginPage: React.FC<{}> = () => {
   const snackbar = useSnackbar();
@@ -29,10 +28,10 @@ const LoginPage: React.FC<{}> = () => {
       deviceName: navigator.userAgent,
     };
 
-    const response = await Request.post("/users/login", null, loginData);
+    const response = await RequestService.post("/users/login", null, loginData);
     if (response.status === 200) {
       const authData: AuthDataDTO = await response.json();
-      const selfResponse = await Request.get(
+      const selfResponse = await RequestService.get(
         "/users/self",
         authData.accessToken
       );

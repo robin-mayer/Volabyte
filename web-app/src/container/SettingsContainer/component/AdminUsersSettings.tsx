@@ -52,7 +52,7 @@ const AdminUsersSettings = () => {
       password,
       role: role,
     };
-    const response = await Request.post(
+    const response = await RequestService.post(
       "/users",
       authenticatedUser.getAuthenticatedUser()?.accessToken!!,
       createUserDTO
