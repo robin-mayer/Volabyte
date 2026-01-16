@@ -12,9 +12,13 @@ import { useAuthenticatedUser } from "./AuthenticatedUser";
 import type { UploadedChunkDTO } from "../model/UploadedChunkDTO";
 import { ArrowDropUp } from "@mui/icons-material";
 import SuccessAnimation from "../component/SuccessAnimation";
+import type { FileDTO } from "../model/FileDTO";
 
 type FileUploaderAPI = {
   scheduleFile: (file: File, parentId: string | null) => void;
+  setCallback: (
+    cb: (parentId: string | null, uploadedFile: FileDTO) => void
+  ) => void;
 };
 
 const FileUploaderContext = createContext<FileUploaderAPI | null>(null);
@@ -45,22 +49,9 @@ export const FileUploaderProvider: React.FC<{ children: React.ReactNode }> = ({
   const authenticatedUser = useAuthenticatedUser();
   const [filesToUpload, setFilesToUpload] = useState<FileToUpload[]>([]);
   const isUploadingRef = useRef(false);
-
-  const api = {
-    scheduleFile: (file: File, parentId: string | null) => {
-      setFilesToUpload((prevFiles) => [
-        ...prevFiles,
-        {
-          id: crypto.randomUUID(),
-          file,
-          parentId,
-          uploadedBytes: 0,
-          totalBytes: file.size,
-          status: "scheduled",
-        },
-      ]);
-    },
-  };
+  const callbackRef = useRef<
+    ((parentId: string | null, uploadedFile: FileDTO) => void) | null
+  >(null);
 
   useEffect(() => {
     if (filesToUpload.length === 0) return;
@@ -84,11 +75,6 @@ export const FileUploaderProvider: React.FC<{ children: React.ReactNode }> = ({
         let fileId: string | null = null;
 
         while (offset < fileUpload.file.size) {
-          console.log("Uploading chunk:", {
-            fileName: fileUpload.file.name,
-            offset,
-            chunkSize: Math.min(CHUNK_SIZE, fileUpload.file.size - offset),
-          });
           const isLastChunk = offset + CHUNK_SIZE >= fileUpload.file.size;
           const chunk = fileUpload.file.slice(offset, offset + CHUNK_SIZE);
 
@@ -121,6 +107,9 @@ export const FileUploaderProvider: React.FC<{ children: React.ReactNode }> = ({
                   : f
               )
             );
+            if (callbackRef.current) {
+              callbackRef.current(fileUpload.parentId, result.uploadedFile);
+            }
             setTimeout(() => {
               setFilesToUpload((prevFiles) =>
                 prevFiles.filter((f) => f.id !== fileUpload.id)
@@ -142,6 +131,27 @@ export const FileUploaderProvider: React.FC<{ children: React.ReactNode }> = ({
     } finally {
       isUploadingRef.current = false;
     }
+  };
+
+  const api = {
+    scheduleFile: (file: File, parentId: string | null) => {
+      setFilesToUpload((prevFiles) => [
+        ...prevFiles,
+        {
+          id: crypto.randomUUID(),
+          file,
+          parentId,
+          uploadedBytes: 0,
+          totalBytes: file.size,
+          status: "scheduled",
+        },
+      ]);
+    },
+    setCallback: (
+      cb: (parentId: string | null, uploadedFile: FileDTO) => void
+    ) => {
+      callbackRef.current = cb;
+    },
   };
 
   return (

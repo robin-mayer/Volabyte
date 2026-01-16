@@ -8,14 +8,31 @@ import type { FileDTO } from "../../model/FileDTO";
 import { useAuthenticatedUser } from "../../provider/AuthenticatedUser";
 import { useSnackbar } from "../../provider/Snackbar";
 import RequestService from "../../service/RequestService";
+import { useFileUploader } from "../../provider/FileUploader";
 
 const FilesContainer = () => {
   const snackbar = useSnackbar();
   const authenticatedUser = useAuthenticatedUser();
+  const fileUploader = useFileUploader();
 
   const [breadcrumbs, setBreadcrumbs] = React.useState<Breadcrumb[]>([]);
   const [parentId, setParentId] = React.useState<string | null>(null);
+  const parentIdRef = React.useRef<string | null>(null);
   const [files, setFiles] = React.useState<FileDTO[]>([]);
+
+  React.useEffect(() => {
+    fileUploader.setCallback(
+      (parentIdOfUploadedFile: string | null, uploadedFile: FileDTO) => {
+        if (parentIdRef.current === parentIdOfUploadedFile) {
+          setFiles((prevFiles: FileDTO[]) =>
+            [...prevFiles, uploadedFile].sort((a, b) =>
+              a.name.localeCompare(b.name)
+            )
+          );
+        }
+      }
+    );
+  }, []);
 
   React.useEffect(() => {
     const newParentId =
@@ -26,6 +43,7 @@ const FilesContainer = () => {
   }, [breadcrumbs]);
 
   React.useEffect(() => {
+    parentIdRef.current = parentId;
     fetchFiles();
   }, [parentId]);
 
