@@ -107,6 +107,7 @@ export const FileUploaderProvider: React.FC<{ children: React.ReactNode }> = ({
                 f.id === fileUpload.id ? { ...f, status: "error" } : f
               )
             );
+            break;
           }
 
           const result: UploadedChunkDTO = await response.json();
