@@ -8,14 +8,21 @@ const SettingsContainer = () => {
         display: "flex",
         flexDirection: "column",
         height: "100%",
+        maxHeight: "100%",
         gap: "1rem",
+        overflowY: "auto",
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
+        "&::-webkit-scrollbar": {
+          display: "none",
+        },
       }}
     >
       <Typography variant="h4" gutterBottom>
         Settings
       </Typography>
       <Divider />
-      <AdminUsersSettings />
+      {true && <AdminUsersSettings />}
     </Box>
   );
 };
