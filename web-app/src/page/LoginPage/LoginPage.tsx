@@ -1,4 +1,4 @@
-import { Box, Button, Paper, TextField } from "@mui/material";
+import { Box, Button, Paper, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import type { LoginUserDTO } from "../../model/LoginUserDTO";
 import type { AuthDataDTO } from "../../model/AuthDataDTO";
@@ -7,6 +7,7 @@ import LocalStorage from "../../service/LocalStorageService";
 import { useSnackbar } from "../../provider/Snackbar";
 import { useAuthenticatedUser } from "../../provider/AuthenticatedUser";
 import RequestService from "../../service/RequestService";
+import packageJson from "../../../package.json";
 
 const LoginPage: React.FC<{}> = () => {
   const snackbar = useSnackbar();
@@ -33,7 +34,7 @@ const LoginPage: React.FC<{}> = () => {
       const authData: AuthDataDTO = await response.json();
       const selfResponse = await RequestService.get(
         "/users/self",
-        authData.accessToken
+        authData.accessToken,
       );
       if (selfResponse.status === 200) {
         const user: UserDTO = await selfResponse.json();
@@ -109,6 +110,9 @@ const LoginPage: React.FC<{}> = () => {
           >
             Login
           </Button>
+          <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
+            Version {packageJson.version}
+          </Typography>
         </Paper>
       </Box>
     </>

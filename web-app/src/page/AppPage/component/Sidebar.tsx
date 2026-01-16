@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
 import { useNavigate } from "react-router-dom";
+import packageJson from "../../../../package.json";
 
 const drawerWidth = 200;
 
@@ -64,16 +65,27 @@ const Sidebar: React.FC<{ height: number }> = ({ height }) => {
             </ListItemButton>
           </ListItem>
         </List>
-        <Link
-          href="https://github.com/robin-mayer/Volabyte"
-          target="_blank"
-          rel="noreferrer"
-          color="textPrimary"
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
         >
-          <Typography variant="body2" gutterBottom>
-            GitHub
+          <Link
+            href="https://github.com/robin-mayer/Volabyte"
+            target="_blank"
+            rel="noreferrer"
+            color="textPrimary"
+          >
+            <Typography variant="body2" gutterBottom>
+              GitHub
+            </Typography>
+          </Link>
+          <Typography variant="body2" color="textSecondary">
+            Version {packageJson.version}
           </Typography>
-        </Link>
+        </Box>
       </Box>
     </Drawer>
   );
