@@ -112,7 +112,7 @@ export const FileUploaderProvider: React.FC<{ children: React.ReactNode }> = ({
                 prevFiles.filter((f) => f.id !== fileUpload.id)
               );
               if (callbackRef.current) {
-                callbackRef.current(fileUpload.parentId, result.uploadedFile);
+                callbackRef.current(fileUpload.parentId, result.uploadedFile!!);
               }
             }, 2500);
           } else {
