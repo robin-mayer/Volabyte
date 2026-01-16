@@ -1,8 +1,17 @@
-import { Box, Paper, Typography } from "@mui/material";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Box,
+  CircularProgress,
+  Typography,
+} from "@mui/material";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import RequestService from "../service/RequestService";
 import { useAuthenticatedUser } from "./AuthenticatedUser";
 import type { UploadedChunkDTO } from "../model/UploadedChunkDTO";
+import { ArrowDropUp } from "@mui/icons-material";
+import SuccessAnimation from "../component/SuccessAnimation";
 
 type FileUploaderAPI = {
   scheduleFile: (file: File, parentId: string | null) => void;
@@ -132,42 +141,61 @@ export const FileUploaderProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <FileUploaderContext.Provider value={api}>
       {children}
-      <Paper
-        elevation={7}
+      <Accordion
         sx={{
           position: "fixed",
-          bottom: "0",
+          bottom: "2rem",
           right: "2rem",
-          width: "30%",
-          maxWidth: "30rem",
-          borderTopLeftRadius: "8px",
-          borderTopRightRadius: "8px",
-          borderBottomLeftRadius: "0",
-          borderBottomRightRadius: "0",
+          width: "40rem",
+          maxWidth: "400px",
         }}
+        defaultExpanded={true}
       >
-        <Box
+        <AccordionSummary expandIcon={<ArrowDropUp />}>
+          <Typography variant="h6">Uploads</Typography>
+        </AccordionSummary>
+        <AccordionDetails
           sx={{
-            backgroundColor: "rgb(25, 118, 210)",
-            borderTopLeftRadius: "8px",
-            borderTopRightRadius: "8px",
-            padding: "0.5rem 1rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.5rem",
           }}
         >
-          <Typography variant="h6" sx={{ color: "white" }}>
-            Uploads
-          </Typography>
           {filesToUpload.map((fileUpload, index) => (
-            <Box key={index} sx={{ marginTop: "0.5rem" }}>
-              <Typography variant="body2">
-                {fileUpload.file.name} - {fileUpload.parentId ?? "root"} -{" "}
-                {fileUpload.uploadedBytes}/{fileUpload.totalBytes} bytes -{" "}
-                {fileUpload.status}
+            <Box
+              key={index}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Typography
+                variant="body1"
+                sx={{
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  maxWidth: "90%",
+                }}
+              >
+                {fileUpload.file.name}
               </Typography>
+              {fileUpload.status === "uploading" && (
+                <CircularProgress
+                  size={24}
+                  thickness={8}
+                  variant="determinate"
+                  value={
+                    (fileUpload.uploadedBytes / fileUpload.totalBytes) * 100
+                  }
+                />
+              )}
+              {fileUpload.status === "completed" && <SuccessAnimation />}
             </Box>
           ))}
-        </Box>
-      </Paper>
+        </AccordionDetails>
+      </Accordion>
     </FileUploaderContext.Provider>
   );
 };
