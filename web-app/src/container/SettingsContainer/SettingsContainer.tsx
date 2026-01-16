@@ -1,23 +1,28 @@
 import { Box, Divider, Typography } from "@mui/material";
-import AdminUsersSettings from "../components/AdminUsersSettings";
+import AdminUsersSettings from "./component/AdminUsersSettings";
 
-const SettingsContainer: React.FC<{ accessToken: string }> = ({
-  accessToken,
-}) => {
+const SettingsContainer = () => {
   return (
     <Box
       sx={{
         display: "flex",
         flexDirection: "column",
         height: "100%",
+        maxHeight: "100%",
         gap: "1rem",
+        overflowY: "auto",
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
+        "&::-webkit-scrollbar": {
+          display: "none",
+        },
       }}
     >
       <Typography variant="h4" gutterBottom>
         Settings
       </Typography>
       <Divider />
-      <AdminUsersSettings accessToken={accessToken} />
+      {true && <AdminUsersSettings />}
     </Box>
   );
 };

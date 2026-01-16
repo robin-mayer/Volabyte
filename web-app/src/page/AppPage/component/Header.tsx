@@ -1,26 +1,22 @@
 import React from "react";
 import {
-  Alert,
   Avatar,
   Box,
   IconButton,
   ListItemIcon,
   Menu,
   MenuItem,
-  Snackbar,
   TextField,
 } from "@mui/material";
 import { Settings, Logout } from "@mui/icons-material";
-import type { AuthUser } from "../models/AuthUser";
-import AuthUserImpl from "../core/AuthUserImpl";
 import { useNavigate } from "react-router-dom";
+import { useAuthenticatedUser } from "../../../provider/AuthenticatedUser";
 
 const Header: React.FC<{
   height: number;
-  authUser: AuthUser;
-  setAuthUser: any;
-}> = ({ height, authUser, setAuthUser }) => {
-  const [showSnackBar, setShowSnackbar] = React.useState<boolean>(false);
+}> = ({ height }) => {
+  const authenticatedUser = useAuthenticatedUser();
+
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -59,7 +55,10 @@ const Header: React.FC<{
             aria-expanded={open ? "true" : undefined}
           >
             <Avatar sx={{ width: 40, height: 40 }}>
-              {authUser.displayName.charAt(0).toUpperCase()}
+              {authenticatedUser
+                .getAuthenticatedUser()
+                ?.displayName.charAt(0)
+                .toUpperCase()}
             </Avatar>
           </IconButton>
           <Menu
@@ -99,7 +98,7 @@ const Header: React.FC<{
             transformOrigin={{ horizontal: "right", vertical: "top" }}
             anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
           >
-            {authUser.role === "ADMIN" && (
+            {authenticatedUser.getAuthenticatedUser()?.role === "ADMIN" && (
               <MenuItem
                 onClick={() => {
                   handleClose();
@@ -115,13 +114,7 @@ const Header: React.FC<{
             <MenuItem
               onClick={() => {
                 handleClose();
-                AuthUserImpl.logout(authUser.accessToken).then((result) => {
-                  if (result) {
-                    setAuthUser(null);
-                  } else {
-                    setShowSnackbar(true);
-                  }
-                });
+                authenticatedUser.removeAuthenticatedUser();
               }}
             >
               <ListItemIcon>
@@ -132,19 +125,6 @@ const Header: React.FC<{
           </Menu>
         </React.Fragment>
       </Box>
-      <Snackbar
-        open={showSnackBar}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        autoHideDuration={2000}
-        onClose={() => setShowSnackbar(false)}
-      >
-        <Alert severity="error" variant="filled" sx={{ width: "100%" }}>
-          Something wen't wrong. Please try again later.
-        </Alert>
-      </Snackbar>
     </React.Fragment>
   );
 };

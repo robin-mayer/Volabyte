@@ -20,7 +20,7 @@ import java.time.LocalDate
 
 @Service
 @Transactional(rollbackFor = [IOException::class])
-class FileService (
+class FileService(
     private val fileRepository: FileRepository,
     private val userRepository: UserRepository
 ) {
@@ -32,7 +32,7 @@ class FileService (
         ownerId: String,
         parentId: String?
     ): List<File> {
-        if(parentId != null) {
+        if (parentId != null) {
             val parentFile = fileRepository.findByIdAndOwnerId(parentId, ownerId)
                 ?: throw ApiException("Parent does not exist", HttpStatus.BAD_REQUEST)
             if (!parentFile.isDirectory) {
@@ -50,7 +50,7 @@ class FileService (
         input: CreateDirectoryDTO,
         ownerId: String
     ): File {
-        if(input.parentId != null) {
+        if (input.parentId != null) {
             verifyParentDirectory(input.parentId, ownerId)
         }
 
@@ -71,15 +71,16 @@ class FileService (
         input: UploadChunkDTO,
         chunk: MultipartFile
     ): UploadResponseDTO {
-        val ownerIdFetched = userRepository.findById(ownerId).orElseThrow { ApiException("User not found", HttpStatus.NOT_FOUND) }.id!!
+        val ownerIdFetched =
+            userRepository.findById(ownerId).orElseThrow { ApiException("User not found", HttpStatus.NOT_FOUND) }.id!!
         val fileName = chunk.originalFilename ?: throw ApiException("Invalid file name", HttpStatus.BAD_REQUEST)
 
-        val file = if(input.fileId != null) {
+        val file = if (input.fileId != null) {
             fileRepository
                 .findByIdAndOwnerId(input.fileId, ownerIdFetched).takeIf { !it?.isDirectory!! && !it.uploadComplete!! }
                 ?: throw ApiException("File does not exist", HttpStatus.BAD_REQUEST)
         } else {
-            if(input.parentId != null) {
+            if (input.parentId != null) {
                 verifyParentDirectory(input.parentId, ownerId)
             }
             val newFile = fileRepository.save(
@@ -93,7 +94,10 @@ class FileService (
                 )
             )
             val fileExtension = if (fileName.contains(".")) ".${fileName.substringAfterLast('.')}" else ""
-            newFile.referencedFile = "/$ownerIdFetched/${LocalDate.now().year}/${LocalDate.now().monthValue}/${newFile.id!!}$fileExtension"
+            newFile.referencedFile =
+                "/$ownerIdFetched/${LocalDate.now().year.toString().padStart(4, '0')}/${
+                    LocalDate.now().monthValue.toString().padStart(2, '0')
+                }/${newFile.id!!}$fileExtension"
             fileRepository.save(newFile)
         }
 
@@ -105,7 +109,7 @@ class FileService (
             }
         }
 
-        if(input.isLastChunk) {
+        if (input.isLastChunk) {
             file.uploadComplete = true
             return UploadResponseDTO(null, fileRepository.save(file))
         } else {

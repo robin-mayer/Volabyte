@@ -1,6 +1,6 @@
-import type { UploadChunkDTO } from "../models/UploadChunkDTO";
+import type { UploadChunkDTO } from "../model/UploadChunkDTO";
 
-class Request {
+class RequestService {
   private readonly baseURL: string;
 
   constructor(baseURL: string) {
@@ -111,4 +111,4 @@ class Request {
   }
 }
 
-export default new Request(window.__APP_CONFIG__.SERVER_URL);
+export default new RequestService(window.__APP_CONFIG__.SERVER_URL);
