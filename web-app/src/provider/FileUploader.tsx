@@ -107,13 +107,13 @@ export const FileUploaderProvider: React.FC<{ children: React.ReactNode }> = ({
                   : f
               )
             );
-            if (callbackRef.current) {
-              callbackRef.current(fileUpload.parentId, result.uploadedFile);
-            }
             setTimeout(() => {
               setFilesToUpload((prevFiles) =>
                 prevFiles.filter((f) => f.id !== fileUpload.id)
               );
+              if (callbackRef.current) {
+                callbackRef.current(fileUpload.parentId, result.uploadedFile);
+              }
             }, 2500);
           } else {
             setFilesToUpload((prevFiles) =>
@@ -209,6 +209,11 @@ export const FileUploaderProvider: React.FC<{ children: React.ReactNode }> = ({
                   />
                 )}
                 {fileUpload.status === "completed" && <SuccessAnimation />}
+                {fileUpload.status === "error" && (
+                  <Typography variant="body2" color="error">
+                    Error
+                  </Typography>
+                )}
               </Box>
             ))}
           </AccordionDetails>
