@@ -120,6 +120,11 @@ export const FileUploaderProvider: React.FC<{ children: React.ReactNode }> = ({
                   : f
               )
             );
+            setTimeout(() => {
+              setFilesToUpload((prevFiles) =>
+                prevFiles.filter((f) => f.id !== fileUpload.id)
+              );
+            }, 2500);
           } else {
             setFilesToUpload((prevFiles) =>
               prevFiles.map((f) =>
@@ -141,61 +146,63 @@ export const FileUploaderProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <FileUploaderContext.Provider value={api}>
       {children}
-      <Accordion
-        sx={{
-          position: "fixed",
-          bottom: "2rem",
-          right: "2rem",
-          width: "40rem",
-          maxWidth: "400px",
-        }}
-        defaultExpanded={true}
-      >
-        <AccordionSummary expandIcon={<ArrowDropUp />}>
-          <Typography variant="h6">Uploads</Typography>
-        </AccordionSummary>
-        <AccordionDetails
+      {filesToUpload.length > 0 && (
+        <Accordion
           sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "0.5rem",
+            position: "fixed",
+            bottom: "2rem",
+            right: "2rem",
+            width: "40rem",
+            maxWidth: "400px",
           }}
+          defaultExpanded={true}
         >
-          {filesToUpload.map((fileUpload, index) => (
-            <Box
-              key={index}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <Typography
-                variant="body1"
+          <AccordionSummary expandIcon={<ArrowDropUp />}>
+            <Typography variant="h6">Uploads</Typography>
+          </AccordionSummary>
+          <AccordionDetails
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.5rem",
+            }}
+          >
+            {filesToUpload.map((fileUpload, index) => (
+              <Box
+                key={index}
                 sx={{
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  maxWidth: "90%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                 }}
               >
-                {fileUpload.file.name}
-              </Typography>
-              {fileUpload.status === "uploading" && (
-                <CircularProgress
-                  size={24}
-                  thickness={8}
-                  variant="determinate"
-                  value={
-                    (fileUpload.uploadedBytes / fileUpload.totalBytes) * 100
-                  }
-                />
-              )}
-              {fileUpload.status === "completed" && <SuccessAnimation />}
-            </Box>
-          ))}
-        </AccordionDetails>
-      </Accordion>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    maxWidth: "90%",
+                  }}
+                >
+                  {fileUpload.file.name}
+                </Typography>
+                {fileUpload.status === "uploading" && (
+                  <CircularProgress
+                    size={24}
+                    thickness={8}
+                    variant="determinate"
+                    value={
+                      (fileUpload.uploadedBytes / fileUpload.totalBytes) * 100
+                    }
+                  />
+                )}
+                {fileUpload.status === "completed" && <SuccessAnimation />}
+              </Box>
+            ))}
+          </AccordionDetails>
+        </Accordion>
+      )}
     </FileUploaderContext.Provider>
   );
 };
