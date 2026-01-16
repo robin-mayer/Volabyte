@@ -30,7 +30,9 @@ const FileQuickActions: React.FC<{
     if (!files) return;
 
     Array.from(files).forEach((file) => {
-      fileUploader.scheduleFile(file, currentParentId);
+      if (file.size > 0) {
+        fileUploader.scheduleFile(file, currentParentId);
+      }
     });
   };
 
