@@ -1,8 +1,8 @@
 import React from "react";
-import type { Breadcrumb } from "../types/Breadcrumb";
 import { emphasize, styled } from "@mui/material/styles";
 import Chip from "@mui/material/Chip";
 import { Breadcrumbs } from "@mui/material";
+import type { Breadcrumb } from "../../../model/Breadcrumb";
 
 const FileBreadcrumbs: React.FC<{
   breadcrumbs: Breadcrumb[];

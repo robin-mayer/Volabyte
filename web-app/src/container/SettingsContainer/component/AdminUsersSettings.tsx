@@ -1,10 +1,8 @@
 import React, { useEffect } from "react";
 import {
-  Alert,
   Box,
   Button,
   Paper,
-  Snackbar,
   Table,
   TableBody,
   TableCell,
@@ -13,24 +11,27 @@ import {
   TableRow,
 } from "@mui/material";
 import Typography from "@mui/material/Typography";
-import type { UserDTO } from "../models/UserDTO";
-import Request from "../core/Request";
 import { DeleteOutline, Edit } from "@mui/icons-material";
 import AdminCreateUserDialog from "./AdminCreateUserDialog";
-import type { CreateUserDTO } from "../models/CreateUserDTO";
-import type { UserRole } from "../types/UserRole";
+import type { CreateUserDTO } from "../../../model/CreateUserDTO";
+import type { UserDTO } from "../../../model/UserDTO";
+import type { UserRole } from "../../../model/UserRole";
+import { useAuthenticatedUser } from "../../../provider/AuthenticatedUser";
+import { useSnackbar } from "../../../provider/Snackbar";
+import RequestService from "../../../service/RequestService";
+const AdminUsersSettings = () => {
+  const snackbar = useSnackbar();
+  const authenticatedUser = useAuthenticatedUser();
 
-const AdminUsersSettings: React.FC<{ accessToken: string }> = ({
-  accessToken,
-}) => {
   const [users, setUsers] = React.useState<UserDTO[]>([]);
   const [openCreateUserDialog, setOpenCreateUserDialog] =
     React.useState<boolean>(false);
-  const [showSnackBar, setShowSnackbar] = React.useState<boolean>(false);
-  const [snackbarText, setSnackbarText] = React.useState<string | null>(null);
 
   useEffect(() => {
-    Request.get("/users", accessToken).then((response) => {
+    RequestService.get(
+      "/users",
+      authenticatedUser.getAuthenticatedUser()?.accessToken!!
+    ).then((response) => {
       if (response.status === 200) {
         response.json().then((data: UserDTO[]) => {
           setUsers(data);
@@ -51,7 +52,11 @@ const AdminUsersSettings: React.FC<{ accessToken: string }> = ({
       password,
       role: role,
     };
-    const response = await Request.post("/users", accessToken, createUserDTO);
+    const response = await RequestService.post(
+      "/users",
+      authenticatedUser.getAuthenticatedUser()?.accessToken!!,
+      createUserDTO
+    );
     if (response.status === 201) {
       const createdUser: UserDTO = await response.json();
       const updatedUsers = [...users, createdUser].sort((a, b) =>
@@ -59,12 +64,11 @@ const AdminUsersSettings: React.FC<{ accessToken: string }> = ({
       );
       setUsers(updatedUsers);
       setOpenCreateUserDialog(false);
-      setSnackbarText(`User ${createdUser.userName} created successfully.`);
+      snackbar.show("User created successfully.", "success");
     } else {
       setOpenCreateUserDialog(false);
-      setSnackbarText("Failed to create user. Please try again.");
+      snackbar.show("Failed to create user. Please try again.", "error");
     }
-    setShowSnackbar(true);
   };
 
   return (
@@ -155,23 +159,6 @@ const AdminUsersSettings: React.FC<{ accessToken: string }> = ({
         handleSubmit={createUser}
         existingUsers={users}
       />
-      <Snackbar
-        open={snackbarText !== null && showSnackBar}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        autoHideDuration={2000}
-        onClose={() => setShowSnackbar(false)}
-      >
-        <Alert
-          severity={snackbarText?.startsWith("User") ? "success" : "error"}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {snackbarText}
-        </Alert>
-      </Snackbar>
     </React.Fragment>
   );
 };

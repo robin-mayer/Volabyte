@@ -1,7 +1,7 @@
-import type { AuthUser } from "../models/AuthUser";
-import type { RefreshTokenData } from "../models/RefreshTokenData";
+import type { AuthUser } from "../model/AuthUser";
+import type { RefreshTokenData } from "../model/RefreshTokenData";
 
-class LocalStorage {
+class LocalStorageService {
   getRefreshToken(): string | null {
     const storedRefreshTokenData = localStorage.getItem("refreshTokenData");
     if (storedRefreshTokenData) {
@@ -48,4 +48,4 @@ class LocalStorage {
   }
 }
 
-export default new LocalStorage();
+export default new LocalStorageService();
