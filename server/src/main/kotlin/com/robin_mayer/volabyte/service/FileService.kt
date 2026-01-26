@@ -110,6 +110,12 @@ class FileService(
         }
 
         if (input.isLastChunk) {
+            val hash = "hash" // todo calculate file hash here
+            if(input.hash != hash) {
+                fileRepository.deleteById(file.id!!)
+                Files.deleteIfExists(uploadFilePath)
+                throw ApiException("File hash does not match", HttpStatus.BAD_REQUEST)
+            }
             file.uploadComplete = true
             return UploadResponseDTO(null, fileRepository.save(file))
         } else {

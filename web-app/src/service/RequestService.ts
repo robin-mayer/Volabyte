@@ -43,7 +43,7 @@ class RequestService {
   async patch(
     path: string,
     token: string | null,
-    body: any
+    body: any,
   ): Promise<Response> {
     const url = this.getRequestUrl(path);
     const headers: Record<string, string> = {
@@ -62,7 +62,7 @@ class RequestService {
   async delete(
     path: string,
     token: string | null,
-    body: any
+    body: any,
   ): Promise<Response> {
     const url = this.getRequestUrl(path);
     const headers: Record<string, string> = {
@@ -84,12 +84,13 @@ class RequestService {
     chunk: File,
     parentId: string | null,
     fileId: string | null,
-    isLastChunk: boolean
+    isLastChunk: boolean,
   ): Promise<Response> {
     const UploadChunkDTO: UploadChunkDTO = {
       parentId: parentId,
       fileId: fileId,
       isLastChunk: isLastChunk,
+      hash: "hash",
     };
 
     const headers: Record<string, string> = {
@@ -99,7 +100,7 @@ class RequestService {
     const formData = new FormData();
     formData.append(
       "uploadChunkDTO",
-      new Blob([JSON.stringify(UploadChunkDTO)], { type: "application/json" })
+      new Blob([JSON.stringify(UploadChunkDTO)], { type: "application/json" }),
     );
     formData.append("chunk", chunk, originalFileName);
 
