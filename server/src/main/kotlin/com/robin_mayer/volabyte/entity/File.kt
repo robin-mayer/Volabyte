@@ -24,7 +24,7 @@ class File (
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     var id: String? = null
-    val uploadedAt: Date = Date()
+    var uploadedAt: Date = Date()
 
     fun toDTO(): FileDTO {
         return FileDTO(
