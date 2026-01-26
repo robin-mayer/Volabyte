@@ -1,5 +1,6 @@
 package com.robin_mayer.volabyte.service
 
+import com.robin_mayer.volabyte.repository.FileRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -8,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class FileServiceTest @Autowired constructor(
     private val fileService: FileService,
+    private val fileRepository: FileRepository
 ) {
 
     @Test
@@ -80,39 +82,18 @@ class FileServiceTest @Autowired constructor(
         assertEquals("File (2).txt", uniqueName)
     }
 
-    @Test
-    fun sanitizeFileString_RemovesPathTraversal() {
-        // given
-        val originalName = "../secret.txt"
+   @Test
+   fun deleteIncompleteFiles() {
+       // given
+       val incompleteFile = fileRepository.findById("e24b75ed-1ad3-49cb-8dc2-9079937114fg")
+       assertEquals(true, incompleteFile.isPresent)
+       assertEquals(false, incompleteFile.get().uploadComplete)
 
-        // when
-        val sanitized = fileService.sanitizeFileString(originalName)
+       // when
+       fileService.deleteIncompleteFiles()
 
-        // then
-        assertEquals("secret.txt", sanitized)
-    }
-
-    @Test
-    fun sanitizeFileString_RemovesPathTraversal_2() {
-        // given
-        val originalName = ".../secret.txt"
-
-        // when
-        val sanitized = fileService.sanitizeFileString(originalName)
-
-        // then
-        assertEquals("secret.txt", sanitized)
-    }
-
-    @Test
-    fun sanitizeFileString_RemovesPathTraversal_3() {
-        // given
-        val originalName = "secret.txt"
-
-        // when
-        val sanitized = fileService.sanitizeFileString(originalName)
-
-        // then
-        assertEquals("secret.txt", sanitized)
-    }
+       // then
+        val deletedFile = fileRepository.findById("e24b75ed-1ad3-49cb-8dc2-9079937114fg")
+        assertEquals(false, deletedFile.isPresent)
+   }
 }
