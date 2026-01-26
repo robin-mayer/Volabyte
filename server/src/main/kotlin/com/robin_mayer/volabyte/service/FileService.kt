@@ -35,14 +35,11 @@ class FileService(
         parentId: String?
     ): List<File> {
         if (parentId != null) {
-            val parentFile = fileRepository.findByIdAndOwnerId(parentId, ownerId)
-                ?: throw ApiException("Parent does not exist", HttpStatus.BAD_REQUEST)
-            if (!parentFile.isDirectory) {
-                throw ApiException("Parent must be a directory", HttpStatus.BAD_REQUEST)
-            }
+            verifyParentDirectory(parentId, ownerId)
         }
         return fileRepository
             .findByOwnerIdAndParentId(ownerId, parentId)
+            .filter { it.isDirectory || it.uploadComplete == true }
             .sortedWith(compareBy<File> {
                 it.name.replace(" ", "~")
             }.thenBy { it.name })
