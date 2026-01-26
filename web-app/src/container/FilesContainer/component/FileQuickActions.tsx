@@ -24,7 +24,7 @@ const FileQuickActions: React.FC<{
     React.useState<boolean>(false);
 
   const handleFilesChanged = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const files = event.target.files;
     if (!files) return;
@@ -47,12 +47,21 @@ const FileQuickActions: React.FC<{
     const response = await RequestService.post(
       "/files/directories",
       authenticatedUser.getAuthenticatedUser()?.accessToken!!,
-      createDirectoryData
+      createDirectoryData,
     );
     if (response.status === 201) {
       const createdFile: FileDTO = await response.json();
       setFiles((prevFiles: FileDTO[]) =>
-        [...prevFiles, createdFile].sort((a, b) => a.name.localeCompare(b.name))
+        [...prevFiles, createdFile].sort((a, b) => {
+          if (a.isDirectory !== b.isDirectory) {
+            return a.isDirectory ? -1 : 1;
+          }
+
+          const nameA = a.name.replace(/ /g, "~").toLowerCase();
+          const nameB = b.name.replace(/ /g, "~").toLowerCase();
+
+          return nameA.localeCompare(nameB);
+        }),
       );
     } else {
       snackbar.show("Something went wrong. Please try again.", "error");

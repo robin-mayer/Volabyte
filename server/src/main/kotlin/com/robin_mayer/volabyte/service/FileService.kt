@@ -40,9 +40,11 @@ class FileService(
         return fileRepository
             .findByOwnerIdAndParentId(ownerId, parentId)
             .filter { it.isDirectory || it.uploadComplete == true }
-            .sortedWith(compareBy<File> {
-                it.name.replace(" ", "~")
-            }.thenBy { it.name })
+            .sortedWith(
+                compareByDescending<File> { it.isDirectory }
+                    .thenBy { it.name.lowercase().replace(" ", "~") }
+                    .thenBy { it.name.lowercase() }
+            )
     }
 
     fun createDirectory(
