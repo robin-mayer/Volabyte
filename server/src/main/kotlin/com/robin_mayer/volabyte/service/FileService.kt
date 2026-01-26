@@ -93,7 +93,7 @@ class FileService(
                     false
                 )
             )
-            val fileExtension = if (fileName.contains(".")) ".${fileName.substringAfterLast('.')}" else ""
+            val fileExtension = if (fileName.contains(".")) ".${fileName.substringAfter('.')}" else ""
             newFile.referencedFile =
                 "/$ownerIdFetched/${LocalDate.now().year.toString().padStart(4, '0')}/${
                     LocalDate.now().monthValue.toString().padStart(2, '0')
@@ -133,7 +133,7 @@ class FileService(
         var counter = 0
         while (true) {
             val newName = if (counter == 0) name else {
-                val fileNameWithoutExtension = name.substringBeforeLast('.')
+                val fileNameWithoutExtension = name.substringBefore('.')
                 val fileExtension = name.replace(fileNameWithoutExtension, "")
                 "$fileNameWithoutExtension ($counter)$fileExtension"
             }
