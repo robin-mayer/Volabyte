@@ -9,6 +9,7 @@ import com.robin_mayer.volabyte.repository.FileRepository
 import com.robin_mayer.volabyte.repository.UserRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -17,6 +18,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 import java.time.LocalDate
+import java.util.Date
 
 @Service
 @Transactional(rollbackFor = [IOException::class])
@@ -109,11 +111,12 @@ class FileService(
             }
         }
 
+        file.uploadedAt = Date()
         if (input.isLastChunk) {
             file.uploadComplete = true
             return UploadResponseDTO(null, fileRepository.save(file))
         } else {
-            return UploadResponseDTO(file.id, null)
+            return UploadResponseDTO(fileRepository.save(file).id, null)
         }
     }
 
@@ -149,5 +152,17 @@ class FileService(
             .replace("...", "")
             .replace("..", "")
             .replace("/", "")
+    }
+
+    @Scheduled(fixedRate = 1000 * 60 * 30)
+    fun deleteIncompleteFiles() {
+        val incompleteFiles = fileRepository.findByUploadCompleteIsFalseAndIsDirectoryIsFalse()
+        for (file in incompleteFiles) {
+            if (file.uploadedAt.before(Date(System.currentTimeMillis() - 1000 * 60 * 60 * 2))) {
+                val filePath = Paths.get("$uploadDirectory/${file.referencedFile}")
+                Files.deleteIfExists(filePath)
+                fileRepository.delete(file)
+            }
+        }
     }
 }
