@@ -13,11 +13,12 @@ import type { UploadedChunkDTO } from "../model/UploadedChunkDTO";
 import { ArrowDropUp } from "@mui/icons-material";
 import SuccessAnimation from "../component/SuccessAnimation";
 import type { FileDTO } from "../model/FileDTO";
+import { createSHA256 } from "hash-wasm";
 
 type FileUploaderAPI = {
   scheduleFile: (file: File, parentId: string | null) => void;
   setCallback: (
-    cb: (parentId: string | null, uploadedFile: FileDTO) => void
+    cb: (parentId: string | null, uploadedFile: FileDTO) => void,
   ) => void;
 };
 
@@ -27,7 +28,7 @@ export const useFileUploader = () => {
   const context = useContext(FileUploaderContext);
   if (!context) {
     throw new Error(
-      "useFileUploader must be used within a FileUploaderProvider"
+      "useFileUploader must be used within a FileUploaderProvider",
     );
   }
   return context;
@@ -67,31 +68,34 @@ export const FileUploaderProvider: React.FC<{ children: React.ReactNode }> = ({
         if (fileUpload.status !== "scheduled") continue;
         setFilesToUpload((prevFiles) =>
           prevFiles.map((f) =>
-            f.id === fileUpload.id ? { ...f, status: "uploading" } : f
-          )
+            f.id === fileUpload.id ? { ...f, status: "uploading" } : f,
+          ),
         );
 
         let offset = 0;
         let fileId: string | null = null;
+        const hasher = await createSHA256();
 
         while (offset < fileUpload.file.size) {
           const isLastChunk = offset + CHUNK_SIZE >= fileUpload.file.size;
           const chunk = fileUpload.file.slice(offset, offset + CHUNK_SIZE);
 
+          hasher.update(new Uint8Array(await chunk.arrayBuffer()));
           const response = await RequestService.uploadFileChunk(
             authenticatedUser.getAuthenticatedUser()?.accessToken!!,
             fileUpload.file.name,
             chunk as File,
             fileUpload.parentId,
             fileId,
-            isLastChunk
+            isLastChunk,
+            isLastChunk ? hasher.digest("hex") : null,
           );
 
           if (!response.ok) {
             setFilesToUpload((prevFiles) =>
               prevFiles.map((f) =>
-                f.id === fileUpload.id ? { ...f, status: "error" } : f
-              )
+                f.id === fileUpload.id ? { ...f, status: "error" } : f,
+              ),
             );
             break;
           }
@@ -104,12 +108,12 @@ export const FileUploaderProvider: React.FC<{ children: React.ReactNode }> = ({
               prevFiles.map((f) =>
                 f.id === fileUpload.id
                   ? { ...f, status: "completed", uploadedBytes: f.totalBytes }
-                  : f
-              )
+                  : f,
+              ),
             );
             setTimeout(() => {
               setFilesToUpload((prevFiles) =>
-                prevFiles.filter((f) => f.id !== fileUpload.id)
+                prevFiles.filter((f) => f.id !== fileUpload.id),
               );
               if (callbackRef.current) {
                 callbackRef.current(fileUpload.parentId, result.uploadedFile!!);
@@ -120,8 +124,8 @@ export const FileUploaderProvider: React.FC<{ children: React.ReactNode }> = ({
               prevFiles.map((f) =>
                 f.id === fileUpload.id
                   ? { ...f, uploadedBytes: offset + chunk.size }
-                  : f
-              )
+                  : f,
+              ),
             );
           }
 
@@ -148,7 +152,7 @@ export const FileUploaderProvider: React.FC<{ children: React.ReactNode }> = ({
       ]);
     },
     setCallback: (
-      cb: (parentId: string | null, uploadedFile: FileDTO) => void
+      cb: (parentId: string | null, uploadedFile: FileDTO) => void,
     ) => {
       callbackRef.current = cb;
     },

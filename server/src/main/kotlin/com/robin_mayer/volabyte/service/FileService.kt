@@ -13,10 +13,12 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
+import java.io.FileInputStream
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
+import java.security.MessageDigest
 import java.time.LocalDate
 import java.util.Date
 
@@ -112,6 +114,12 @@ class FileService(
 
         file.uploadedAt = Date()
         if (input.isLastChunk) {
+            val hash = hashFile(uploadFilePath.toFile())
+            if(input.hash == null || input.hash != hash) {
+                fileRepository.deleteById(file.id!!)
+                Files.deleteIfExists(uploadFilePath)
+                throw ApiException("File hash does not match", HttpStatus.BAD_REQUEST)
+            }
             file.uploadComplete = true
             return UploadResponseDTO(null, fileRepository.save(file))
         } else {
@@ -144,6 +152,19 @@ class FileService(
             }
             counter++
         }
+    }
+
+    fun hashFile(file: java.io.File): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        FileInputStream(file).use { fis ->
+            val buffer = ByteArray(4 * 1024 * 1024)
+            var read = fis.read(buffer)
+            while (read != -1) {
+                digest.update(buffer, 0, read)
+                read = fis.read(buffer)
+            }
+        }
+        return digest.digest().joinToString("") { "%02x".format(it) }
     }
 
     @Scheduled(initialDelay = 1000 * 60 * 5, fixedRate = 1000 * 60 * 30)
