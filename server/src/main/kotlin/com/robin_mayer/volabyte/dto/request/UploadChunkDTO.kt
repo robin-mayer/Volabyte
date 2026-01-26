@@ -4,5 +4,5 @@ class UploadChunkDTO (
     val parentId: String?,
     val fileId: String?,
     val isLastChunk: Boolean,
-    val hash: String,
+    val hash: String?,
 )

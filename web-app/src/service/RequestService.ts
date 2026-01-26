@@ -85,12 +85,13 @@ class RequestService {
     parentId: string | null,
     fileId: string | null,
     isLastChunk: boolean,
+    hash: string | null,
   ): Promise<Response> {
     const UploadChunkDTO: UploadChunkDTO = {
       parentId: parentId,
       fileId: fileId,
       isLastChunk: isLastChunk,
-      hash: "hash",
+      hash: hash,
     };
 
     const headers: Record<string, string> = {
