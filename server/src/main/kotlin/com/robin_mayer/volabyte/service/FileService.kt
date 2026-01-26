@@ -12,10 +12,12 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
+import java.io.FileInputStream
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
+import java.security.MessageDigest
 import java.time.LocalDate
 
 @Service
@@ -110,7 +112,7 @@ class FileService(
         }
 
         if (input.isLastChunk) {
-            val hash = "hash" // todo calculate file hash here
+            val hash = hashFile(uploadFilePath.toFile())
             if(input.hash == null || input.hash != hash) {
                 fileRepository.deleteById(file.id!!)
                 Files.deleteIfExists(uploadFilePath)
@@ -148,6 +150,19 @@ class FileService(
             }
             counter++
         }
+    }
+
+    fun hashFile(file: java.io.File): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        FileInputStream(file).use { fis ->
+            val buffer = ByteArray(4 * 1024 * 1024)
+            var read = fis.read(buffer)
+            while (read != -1) {
+                digest.update(buffer, 0, read)
+                read = fis.read(buffer)
+            }
+        }
+        return digest.digest().joinToString("") { "%02x".format(it) }
     }
 
     fun sanitizeFileString(fileString: String): String {
