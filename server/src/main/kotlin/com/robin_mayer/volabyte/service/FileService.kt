@@ -9,6 +9,7 @@ import com.robin_mayer.volabyte.repository.FileRepository
 import com.robin_mayer.volabyte.repository.UserRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -19,6 +20,7 @@ import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 import java.security.MessageDigest
 import java.time.LocalDate
+import java.util.Date
 
 @Service
 @Transactional(rollbackFor = [IOException::class])
@@ -35,17 +37,16 @@ class FileService(
         parentId: String?
     ): List<File> {
         if (parentId != null) {
-            val parentFile = fileRepository.findByIdAndOwnerId(parentId, ownerId)
-                ?: throw ApiException("Parent does not exist", HttpStatus.BAD_REQUEST)
-            if (!parentFile.isDirectory) {
-                throw ApiException("Parent must be a directory", HttpStatus.BAD_REQUEST)
-            }
+            verifyParentDirectory(parentId, ownerId)
         }
         return fileRepository
             .findByOwnerIdAndParentId(ownerId, parentId)
-            .sortedWith(compareBy<File> {
-                it.name.replace(" ", "~")
-            }.thenBy { it.name })
+            .filter { it.isDirectory || it.uploadComplete == true }
+            .sortedWith(
+                compareByDescending<File> { it.isDirectory }
+                    .thenBy { it.name.lowercase().replace(" ", "~") }
+                    .thenBy { it.name.lowercase() }
+            )
     }
 
     fun createDirectory(
@@ -95,7 +96,7 @@ class FileService(
                     false
                 )
             )
-            val fileExtension = if (fileName.contains(".")) ".${fileName.substringAfterLast('.')}" else ""
+            val fileExtension = if (fileName.contains(".")) ".${fileName.substringAfter('.')}" else ""
             newFile.referencedFile =
                 "/$ownerIdFetched/${LocalDate.now().year.toString().padStart(4, '0')}/${
                     LocalDate.now().monthValue.toString().padStart(2, '0')
@@ -111,6 +112,7 @@ class FileService(
             }
         }
 
+        file.uploadedAt = Date()
         if (input.isLastChunk) {
             val hash = hashFile(uploadFilePath.toFile())
             if(input.hash == null || input.hash != hash) {
@@ -121,7 +123,7 @@ class FileService(
             file.uploadComplete = true
             return UploadResponseDTO(null, fileRepository.save(file))
         } else {
-            return UploadResponseDTO(file.id, null)
+            return UploadResponseDTO(fileRepository.save(file).id, null)
         }
     }
 
@@ -141,7 +143,7 @@ class FileService(
         var counter = 0
         while (true) {
             val newName = if (counter == 0) name else {
-                val fileNameWithoutExtension = name.substringBeforeLast('.')
+                val fileNameWithoutExtension = name.substringBefore('.')
                 val fileExtension = name.replace(fileNameWithoutExtension, "")
                 "$fileNameWithoutExtension ($counter)$fileExtension"
             }
@@ -165,10 +167,15 @@ class FileService(
         return digest.digest().joinToString("") { "%02x".format(it) }
     }
 
-    fun sanitizeFileString(fileString: String): String {
-        return fileString
-            .replace("...", "")
-            .replace("..", "")
-            .replace("/", "")
+    @Scheduled(initialDelay = 1000 * 60 * 5, fixedRate = 1000 * 60 * 30)
+    fun deleteIncompleteFiles() {
+        val incompleteFiles = fileRepository.findByUploadCompleteIsFalseAndIsDirectoryIsFalse()
+        for (file in incompleteFiles) {
+            if (file.uploadedAt.before(Date(System.currentTimeMillis() - 1000 * 60 * 60 * 2))) {
+                val filePath = Paths.get("$uploadDirectory/${file.referencedFile}")
+                Files.deleteIfExists(filePath)
+                fileRepository.delete(file)
+            }
+        }
     }
 }

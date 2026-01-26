@@ -55,7 +55,7 @@ class FileControllerTest {
 
         // then
         assertEquals(HttpStatus.OK, response.statusCode)
-        assertEquals(2, response.body?.size)
+        assertEquals(3, response.body?.size)
 
         assertEquals("d0bbdf22-60d3-4362-a32e-e275cd12aa86", response.body?.get(0)?.id)
         assertEquals("Directory", response.body?.get(0)?.name)
@@ -64,12 +64,19 @@ class FileControllerTest {
         assertEquals(null, response.body?.get(0)?.referencedFile)
         assertEquals("168bc3b2-5286-4572-a0a1-84f2d414f09c", response.body?.get(0)?.ownerId)
 
-        assertEquals("2106bb0e-3429-41ae-84a7-59af82adae87", response.body?.get(1)?.id)
-        assertEquals("File.pdf", response.body?.get(1)?.name)
+        assertEquals("d0bbdf22-60d3-4362-a32e-e275cd12aa12", response.body?.get(1)?.id)
+        assertEquals("XXX", response.body?.get(1)?.name)
         assertEquals(null, response.body?.get(1)?.parentId)
-        assertEquals(false, response.body?.get(1)?.isDirectory)
-        assertEquals("/referenced/file.pdf", response.body?.get(1)?.referencedFile)
+        assertEquals(true, response.body?.get(1)?.isDirectory)
+        assertEquals(null, response.body?.get(1)?.referencedFile)
         assertEquals("168bc3b2-5286-4572-a0a1-84f2d414f09c", response.body?.get(1)?.ownerId)
+
+        assertEquals("2106bb0e-3429-41ae-84a7-59af82adae87", response.body?.get(2)?.id)
+        assertEquals("File.pdf", response.body?.get(2)?.name)
+        assertEquals(null, response.body?.get(2)?.parentId)
+        assertEquals(false, response.body?.get(2)?.isDirectory)
+        assertEquals("/referenced/file.pdf", response.body?.get(2)?.referencedFile)
+        assertEquals("168bc3b2-5286-4572-a0a1-84f2d414f09c", response.body?.get(2)?.ownerId)
     }
 
     @Test

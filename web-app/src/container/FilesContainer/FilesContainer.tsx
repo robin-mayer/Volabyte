@@ -25,12 +25,19 @@ const FilesContainer = () => {
       (parentIdOfUploadedFile: string | null, uploadedFile: FileDTO) => {
         if (parentIdRef.current === parentIdOfUploadedFile) {
           setFiles((prevFiles: FileDTO[]) =>
-            [...prevFiles, uploadedFile].sort((a, b) =>
-              a.name.localeCompare(b.name)
-            )
+            [...prevFiles, uploadedFile].sort((a, b) => {
+              if (a.isDirectory !== b.isDirectory) {
+                return a.isDirectory ? -1 : 1;
+              }
+
+              const nameA = a.name.replace(/ /g, "~").toLowerCase();
+              const nameB = b.name.replace(/ /g, "~").toLowerCase();
+
+              return nameA.localeCompare(nameB);
+            }),
           );
         }
-      }
+      },
     );
   }, []);
 
@@ -51,7 +58,7 @@ const FilesContainer = () => {
     const requestPath = parentId ? `/files/${parentId}/list` : `/files/list`;
     const response = await RequestService.get(
       requestPath,
-      authenticatedUser.getAuthenticatedUser()?.accessToken!!
+      authenticatedUser.getAuthenticatedUser()?.accessToken!!,
     );
     if (response.status === 200) {
       const data: FileDTO[] = await response.json();

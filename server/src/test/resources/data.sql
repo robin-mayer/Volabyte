@@ -41,3 +41,9 @@ VALUES ('e24b75ed-1ad3-49cb-8dc2-9079937114fd', 'File.txt', false, '/referenced/
 
 INSERT INTO files (id, name, is_directory, referenced_file, parent_id, owner_id, uploaded_at, upload_complete)
 VALUES ('e24b75ed-1ad3-49cb-8dc2-9079937114fe', 'File (1).txt', false, '/referenced/file_1.txt', 'd0bbdf22-60d3-4362-a32e-e275cd12aa86', '168bc3b2-5286-4572-a0a1-84f2d414f09c', '2025-07-21 16:30:45.000000', true);
+
+INSERT INTO files (id, name, is_directory, referenced_file, parent_id, owner_id, uploaded_at, upload_complete)
+VALUES ('e24b75ed-1ad3-49cb-8dc2-9079937114fg', 'incomplete.txt', false, '/referenced/incomplete.txt', null, '168bc3b2-5286-4572-a0a1-84f2d414f09c', '2025-07-21 16:30:45.000000', false);
+
+INSERT INTO files (id, name, is_directory, referenced_file, parent_id, owner_id, uploaded_at, upload_complete)
+VALUES ('d0bbdf22-60d3-4362-a32e-e275cd12aa12', 'XXX', true, null, null, '168bc3b2-5286-4572-a0a1-84f2d414f09c', '2025-07-21 14:30:45.000000', null);
