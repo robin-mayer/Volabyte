@@ -147,14 +147,7 @@ class FileService(
         }
     }
 
-    fun sanitizeFileString(fileString: String): String {
-        return fileString
-            .replace("...", "")
-            .replace("..", "")
-            .replace("/", "")
-    }
-
-    @Scheduled(fixedRate = 1000 * 60 * 30)
+    @Scheduled(initialDelay = 1000 * 60 * 5, fixedRate = 1000 * 60 * 30)
     fun deleteIncompleteFiles() {
         val incompleteFiles = fileRepository.findByUploadCompleteIsFalseAndIsDirectoryIsFalse()
         for (file in incompleteFiles) {
